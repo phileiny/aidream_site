@@ -5,6 +5,9 @@ export default defineConfig({
   title: '星智未來 Aidream',
   description: '星智未來｜以 AI 與工程實踐創造價值',
   lang: 'zh-Hant',
+  // 若部署在 GitHub Pages 子路徑（https://<user>.github.io/<repo>/），需設定 base
+  // 將 <repo> 改為你的 Repo 名稱
+  base: '/aidream_site/',
   cleanUrls: true,
   lastUpdated: true,
   sitemap: { hostname: 'https://your-domain.example' }, // 部署後改成你的網域

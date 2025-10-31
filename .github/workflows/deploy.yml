@@ -1,8 +1,10 @@
 name: Deploy VitePress to GitHub Pages
 
 on:
-  # 改為僅手動觸發，避免在私有階段誤公開
-  workflow_dispatch:
+  push:
+    branches:
+      - main  # 當推送到 main 分支時自動觸發
+  workflow_dispatch:  # 保留手動觸發選項
 
 permissions:
   contents: write

@@ -4,7 +4,7 @@
 **學習期間：** 2025-11-10 至 2025-11-14
 **整理者：** Kuanter8
 **總學習時數：** 約 15 小時
-**原課程連結：** [5-Day AI Agents Intensive Course](https://www.kaggle.com/competitions/5-day-ai-agents-intensive-course/overview)
+**原課程連結：** [5-Day AI Agents Intensive Course](https://www.kaggle.com/learn-guide/5-day-agents)
 ---
 
 ## 📖 目錄

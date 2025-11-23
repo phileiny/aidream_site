@@ -1,22 +1,28 @@
 ---
 layout: home
-title: 星智未來 Aidream
+title: 智覺未來
 hero:
-  name: 星智未來 Aidream
+  name: 智覺未來
   text: 以 AI 工程，快速把點子變成價值
   tagline: 我們分享實戰筆記、專案故事與教學，持續更新。
   actions:
     - theme: brand
-      text: 開始閱讀
-      link: /posts/
+      text: AI 文章
+      link: /ai/
     - theme: alt
-      text: 關於我們
-      link: /about
+      text: 機器人文章
+      link: /robot/
+    - theme: alt
+      text: 專案文章
+      link: /project/
 features:
-  - title: 教學與筆記
-    details: LLM 應用、後端整合、雲端部署等主題的條理化教學。
-  - title: 專案故事
-    details: 從需求到上線的過程回顧，踩坑與解法不藏私。
-  - title: 工具與模板
-    details: 提供可直接使用的腳手架與最佳實踐。
+  - title: AI
+    details: 最新 AI 技術與應用分享。
+    link: /ai/
+  - title: 機器人
+    details: 機器人最新發展
+    link: /robot/
+  - title: 專案
+    details: 我們的專案展示與經驗分享。
+    link: /project/
 ---

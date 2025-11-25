@@ -34,6 +34,7 @@ export default defineConfig({
           text: 'AI Articles',
           items: [
             { text: 'Index', link: '/ai/' },
+            { text: 'Claude Opus 4.5 正式發布', link: '/ai/Claude-Opus-4.5-發布記錄' },
             { text: '5 天 Google AI Agent 學習旅程', link: '/ai/5D_AI_Agent_Summary' }
           ]
         }

@@ -24,6 +24,47 @@ npm run build
 - 圖片放在 `docs/public/images/`，用 `/images/...` 方式引用。
 - 語言：zh-Hant。
 
+### 📝 標準上架文章流程
+
+#### 1. 創建文章檔案
+在對應的類別資料夾中創建 Markdown 文件：
+- AI 類別：`docs/ai/文章名稱.md`
+- 機器人類別：`docs/robot/文章名稱.md`
+- 專案類別：`docs/project/文章名稱.md`
+
+#### 2. 處理圖片資源
+- 將圖片放入 `docs/public/images/` 資料夾
+- 建議命名格式：`類別-文章主題-描述.png`（例如：`claude-opus-4.5-status.png`）
+- 在文章中使用 `/images/圖片名稱.png` 引用圖片
+
+#### 3. 更新類別索引頁
+在對應的 `index.md` 中加入文章連結：
+```markdown
+## Recent Posts
+
+- [文章標題](./文章檔名)
+```
+
+#### 4. 更新側邊欄配置
+編輯 `docs/.vitepress/config.ts`，在對應類別的 `sidebar` 配置中加入：
+```typescript
+{
+  text: 'AI Articles',  // 或其他類別
+  items: [
+    { text: 'Index', link: '/ai/' },
+    { text: '文章標題', link: '/ai/文章檔名' },  // 新增這行
+    // ... 其他文章
+  ]
+}
+```
+
+#### 5. 本地預覽
+```bash
+npm run dev
+# 檢查文章是否正常顯示在側邊欄和索引頁
+```
+
+
 ---
 
 ## GitHub Pages 自動部署

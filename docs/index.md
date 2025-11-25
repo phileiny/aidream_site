@@ -1,8 +1,8 @@
 ---
 layout: home
-title: 智覺未來
+title: 星智未來
 hero:
-  name: 智覺未來
+  name: 星智未來
   text: 以 AI 工程，快速把點子變成價值
   tagline: 我們分享實戰筆記、專案故事與教學，持續更新。
   actions:

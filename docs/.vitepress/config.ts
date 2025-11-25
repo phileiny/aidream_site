@@ -2,8 +2,8 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: '智覺未來',
-  description: '智覺未來｜以 AI 與工程實踐創造價值',
+  title: '星智未來',
+  description: '星智未來｜以 AI 與工程實踐創造價值',
   lang: 'zh-Hant',
   // 若部署在 GitHub Pages 子路徑（https://<user>.github.io/<repo>/），需設定 base
   // 將 <repo> 改為你的 Repo 名稱
@@ -17,8 +17,8 @@ export default defineConfig({
     ['meta', { name: 'referrer', content: 'no-referrer-when-downgrade' }],
     ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { name: 'theme-color', content: '#111827' }],
-    ['meta', { property: 'og:title', content: '智覺未來' }],
-    ['meta', { property: 'og:description', content: '智覺未來｜以 AI 與工程實踐創造價值' }]
+    ['meta', { property: 'og:title', content: '星智未來' }],
+    ['meta', { property: 'og:description', content: '星智未來｜以 AI 與工程實踐創造價值' }]
   ],
   themeConfig: {
     logo: { src: '/logo.svg', alt: 'InsightCosmos' },
@@ -62,7 +62,7 @@ export default defineConfig({
     ],
     footer: {
       message: 'MIT Licensed',
-      copyright: '© ' + new Date().getFullYear() + ' 智覺未來'
+      copyright: '© ' + new Date().getFullYear() + ' 星智未來'
     },
     search: { provider: 'local' }
   }

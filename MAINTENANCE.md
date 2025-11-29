@@ -33,13 +33,21 @@ aidream-site/
 │   ├── .vitepress/               # VitePress 配置
 │   │   ├── config.ts             # 主要配置文件
 │   │   ├── components/           # 自定義組件
-│   │   │   └── VisitorCounter.vue
 │   │   ├── theme/                 # 自定義主題
 │   │   │   ├── index.ts
 │   │   │   └── components/
-│   │   │       └── Home.vue
 │   │   └── cache/                 # 構建緩存（自動生成）
-│   ├── posts/                     # 文章目錄
+│   ├── ai/                        # AI 文章分類
+│   │   ├── index.md              # AI 分類索引頁
+│   │   ├── context7-mcp-guide.md
+│   │   ├── Claude-Opus-4.5-發布記錄.md
+│   │   └── 5D_AI_Agent_Summary.md
+│   ├── robot/                     # 機器人文章分類
+│   │   └── index.md              # 機器人分類索引頁
+│   ├── project/                   # 專案文章分類
+│   │   ├── index.md              # 專案分類索引頁
+│   │   └── InsightCosmos_Full_Writeup_FULL_zh_TW.md
+│   ├── posts/                     # 舊文章目錄（保留相容性）
 │   ├── public/                    # 靜態資源
 │   │   ├── images/                # 圖片資源
 │   │   ├── favicon.ico
@@ -53,11 +61,24 @@ aidream-site/
 │   └── generate-rss.mjs          # RSS 生成
 ├── .github/
 │   └── workflows/
-│       ├── deploy.yml             # 自動部署工作流
-│       └── build-preview.yml      # 預覽構建工作流
+│       └── deploy.yml             # 自動部署工作流
 ├── package.json
+├── MAINTENANCE.md                 # 本維護手冊
 └── README.md
 ```
+
+### 網站架構說明
+
+本網站採用**分類架構**，主要內容分為三大分類：
+
+1. **AI 分類** (`/ai/`)：人工智慧相關文章
+2. **機器人分類** (`/robot/`)：機器人技術相關文章
+3. **專案分類** (`/project/`)：專案發想與實作記錄
+
+每個分類都有：
+- 獨立的目錄結構 (`docs/ai/`, `docs/robot/`, `docs/project/`)
+- 分類索引頁面 (`index.md`)
+- 獨立的側邊欄配置 (在 `config.ts` 中設定)
 
 ---
 
@@ -133,32 +154,140 @@ npm run rss
 
 ## 內容管理
 
-### 添加新文章
+### 添加新文章到分類（AI / 機器人 / 專案）
 
-1. **創建文章文件**
-   ```bash
-   # 在 docs/posts/ 目錄下創建 .md 文件
-   docs/posts/your-article.md
-   ```
+本網站採用分類架構，文章分為三個主要分類：AI、機器人（Robot）、專案（Project）。以下以添加 AI 文章為例，其他分類流程相同。
 
-2. **文章 Frontmatter 範例**
-   ```markdown
-   ---
-   title: 文章標題
-   description: 文章描述（用於 SEO）
-   date: 2024-01-01
-   author: 作者名稱（可選）
-   tags:
-     - 標籤1
-     - 標籤2
-   ---
+#### 步驟 1：創建文章文件
 
-   # 文章內容
-   這裡開始你的文章內容...
-   ```
+在對應的分類目錄下創建 `.md` 文件：
 
-3. **更新文章索引**
-   編輯 `docs/posts/index.md` 添加文章連結
+```bash
+# AI 文章
+docs/ai/your-article.md
+
+# 機器人文章
+docs/robot/your-article.md
+
+# 專案文章
+docs/project/your-article.md
+```
+
+#### 步驟 2：撰寫文章內容
+
+文章開頭使用標題（不需要 frontmatter）：
+
+```markdown
+# 文章標題
+
+## 第一節
+
+文章內容...
+```
+
+#### 步驟 3：更新分類索引頁面
+
+編輯對應分類的 `index.md`，將新文章添加到 **Recent Posts 列表的最上方**：
+
+**AI 文章：** 編輯 `docs/ai/index.md`
+```markdown
+## Recent Posts
+
+- [新文章標題](./your-article)
+- [Context7 MCP：讓 AI 程式助手不再寫出過時的程式碼](./context7-mcp-guide)
+- [Claude Opus 4.5 正式發布](./Claude-Opus-4.5-發布記錄)
+```
+
+**機器人文章：** 編輯 `docs/robot/index.md`
+```markdown
+## Recent Posts
+
+- [新文章標題](./your-article)
+*Coming soon...*
+```
+
+**專案文章：** 編輯 `docs/project/index.md`
+```markdown
+## Recent Posts
+
+- [新文章標題](./your-article)
+- [InsightCosmos 專案發想](./InsightCosmos_Full_Writeup_FULL_zh_TW)
+```
+
+#### 步驟 4：更新側邊欄配置
+
+編輯 `docs/.vitepress/config.ts`，在對應分類的 sidebar 中添加文章連結（添加在 Index 之後）：
+
+**AI 文章：**
+```typescript
+sidebar: {
+  '/ai/': [
+    {
+      text: 'AI Articles',
+      items: [
+        { text: 'Index', link: '/ai/' },
+        { text: '新文章標題', link: '/ai/your-article' },  // 新增這行
+        { text: 'Context7 MCP：讓 AI 程式助手不再寫出過時的程式碼', link: '/ai/context7-mcp-guide' },
+        // ... 其他文章
+      ]
+    }
+  ],
+  // ...
+}
+```
+
+**機器人文章：**
+```typescript
+sidebar: {
+  '/robot/': [
+    {
+      text: 'Robot Articles',
+      items: [
+        { text: 'Index', link: '/robot/' },
+        { text: '新文章標題', link: '/robot/your-article' },  // 新增這行
+        // ... 其他文章
+      ]
+    }
+  ],
+  // ...
+}
+```
+
+**專案文章：**
+```typescript
+sidebar: {
+  '/project/': [
+    {
+      text: 'Project Articles',
+      items: [
+        { text: 'Index', link: '/project/' },
+        { text: '新文章標題', link: '/project/your-article' },  // 新增這行
+        { text: 'InsightCosmos 專案發想', link: '/project/InsightCosmos_Full_Writeup_FULL_zh_TW' },
+        // ... 其他文章
+      ]
+    }
+  ],
+  // ...
+}
+```
+
+#### 步驟 5：本地預覽
+
+```bash
+# 開發伺服器會自動重新載入
+# 訪問 http://localhost:5173 檢查：
+# 1. 分類索引頁面是否顯示新文章
+# 2. 側邊欄是否顯示新文章連結
+# 3. 文章內容是否正確顯示
+```
+
+#### 快速檢查清單
+
+添加新文章時，確保完成以下三個步驟：
+
+- [ ] 在 `docs/{分類}/` 目錄下創建文章 `.md` 文件
+- [ ] 更新 `docs/{分類}/index.md` 的 Recent Posts 列表（添加到最上方）
+- [ ] 更新 `docs/.vitepress/config.ts` 的 sidebar 配置（添加到 Index 之後）
 
 ### 添加新頁面
 

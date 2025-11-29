@@ -34,6 +34,7 @@ export default defineConfig({
           text: 'AI Articles',
           items: [
             { text: 'Index', link: '/ai/' },
+            { text: 'Context7 MCP：讓 AI 程式助手不再寫出過時的程式碼', link: '/ai/context7-mcp-guide' },
             { text: 'Claude Opus 4.5 正式發布', link: '/ai/Claude-Opus-4.5-發布記錄' },
             { text: '5 天 Google AI Agent 學習旅程', link: '/ai/5D_AI_Agent_Summary' }
           ]

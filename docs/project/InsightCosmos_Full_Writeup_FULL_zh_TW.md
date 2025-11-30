@@ -1,5 +1,7 @@
 # 🚀 InsightCosmos -- Capstone Full Writeup（繁體中文版）
 
+> **GitHub Repository**: https://github.com/phileiny/InsightCosmos
+
 ## 1. 引言與靈感來源（Introduction & Inspiration）
 
 AI 與機器人領域的進展速度，已經快到任何人都無法靠手動方式完全追蹤。

@@ -44,7 +44,8 @@ export default defineConfig({
         {
           text: 'Robot Articles',
           items: [
-            { text: 'Index', link: '/robot/' }
+            { text: 'Index', link: '/robot/' },
+            { text: 'VLA 技術深度解析：從原理到 Mantis 實戰應用', link: '/robot/VLA技術深度解析_從原理到Mantis實戰應用' }
           ]
         }
       ],

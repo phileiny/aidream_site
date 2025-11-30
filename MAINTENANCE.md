@@ -316,6 +316,39 @@ sidebar: {
    ![圖片描述](/images/your-image.png)
    ```
 
+#### ⚠️ 圖片放置重要規則
+
+**正確做法 ✅**：
+- 所有圖片必須放在 `docs/public/images/` 目錄下
+- 使用絕對路徑 `/images/filename.png` 引用圖片
+- 圖片檔名使用小寫英文、數字和連字符（kebab-case）
+
+**錯誤做法 ❌**：
+- ❌ 使用相對路徑：`./image.png` 或 `../images/image.png`
+- ❌ 將圖片放在文章同目錄：`docs/ai/image.png`
+- ❌ 使用中文檔名或空格
+
+**範例**：
+
+```markdown
+<!-- ✅ 正確：使用絕對路徑 -->
+![Claude Opus 4.5 狀態](/images/claude-opus-4.5-status.png)
+
+<!-- ❌ 錯誤：使用相對路徑 -->
+![錯誤示範](./terminal-screenshot.png)
+
+<!-- ❌ 錯誤：圖片不在 public/images 目錄 -->
+![錯誤示範](/ai/screenshot.png)
+```
+
+**檢查清單**：
+- [ ] 圖片已放入 `docs/public/images/` 目錄
+- [ ] 使用 `/images/` 開頭的絕對路徑
+- [ ] 檔名使用 kebab-case（小寫加連字符）
+- [ ] 在本地開發環境測試圖片是否正常顯示
+- [ ] 執行 `npm run build` 確認沒有構建錯誤
+
+
 ### 修改首頁
 
 編輯 `docs/index.md` 的 frontmatter：

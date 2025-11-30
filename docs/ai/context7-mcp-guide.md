@@ -69,8 +69,6 @@ claude mcp remove "context7" -s local
 ![Context7 MCP 運作示意圖](/images/context7_mcp.png)
 *圖：Context7 MCP 即時抓取最新文件並注入到 AI context 中*
 
-![Claude Code MCP 操作示範](./terminal-screenshot.png)
-*圖：在 Claude Code 中管理 Context7 MCP 的完整操作流程*
 
 ## 實際使用方式
 

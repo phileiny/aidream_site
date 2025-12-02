@@ -55,6 +55,7 @@ export default defineConfig({
           text: 'Project Articles',
           items: [
             { text: 'Index', link: '/project/' },
+            { text: '從單一 AI Agent 到專家團隊：咩猛Memo 架構演進之路', link: '/project/multi-agent-architecture' },
             { text: 'InsightCosmos 專案發想', link: '/project/InsightCosmos_Full_Writeup_FULL_zh_TW' }
           ]
         }

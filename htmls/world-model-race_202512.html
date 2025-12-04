@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Model 產業競爭態勢 | AGI 關鍵賽道分析</title>
+    <meta name="description" content="深入分析 World Model 產業競爭態勢，比較 Google DeepMind Genie、World Labs Marble、NVIDIA Cosmos、OpenAI Sora 等主要玩家">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        .gradient-text {
+            background: linear-gradient(90deg, #60a5fa, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .tab-btn.active {
+            background-color: #2563eb;
+            color: white;
+        }
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            left: -6px;
+            top: 6px;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+    
+    <!-- Header -->
+    <header class="border-b border-gray-700 bg-gray-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <h1 class="text-2xl md:text-3xl font-bold gradient-text">
+                World Model 產業競爭態勢
+            </h1>
+            <p class="text-gray-400 text-sm mt-1">AGI 通往物理智能的關鍵賽道 (2023-2025)</p>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        
+        <!-- Rankings -->
+        <section class="bg-gray-800/50 rounded-xl p-4 md:p-6 mb-6 border border-gray-700">
+            <h2 class="text-lg font-semibold mb-4 text-yellow-400">🏆 2025 Q4 領先排名</h2>
+            <div class="grid grid-cols-4 md:grid-cols-7 gap-2 md:gap-4" id="rankings">
+                <!-- Filled by JS -->
+            </div>
+        </section>
+
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2" id="tabs">
+            <button class="tab-btn active px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all" data-tab="timeline">📈 發展趨勢</button>
+            <button class="tab-btn px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all" data-tab="tech">🎯 技術維度</button>
+            <button class="tab-btn px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all" data-tab="radar">📊 雷達圖</button>
+            <button class="tab-btn px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all" data-tab="milestones">📅 里程碑</button>
+            <button class="tab-btn px-4 py-2 rounded-lg font-medium whitespace-nowrap bg-gray-700 text-gray-300 hover:bg-gray-600 transition-all" data-tab="compare">⚔️ 對比分析</button>
+        </div>
+
+        <!-- Tab Content: Timeline -->
+        <section id="content-timeline" class="tab-content bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-700">
+            <h2 class="text-xl font-semibold mb-2">綜合發展指數趨勢</h2>
+            <p class="text-gray-400 text-sm mb-4">
+                基於技術成熟度(30%)、商業化(25%)、生態系統(25%)、資源投入(20%)的綜合評估 (0-100)
+            </p>
+            <div class="h-[400px] md:h-[500px]">
+                <canvas id="timelineChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Tab Content: Tech -->
+        <section id="content-tech" class="tab-content bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-700 hidden">
+            <h2 class="text-xl font-semibold mb-4">技術維度對比 (2025 Q4)</h2>
+            <div class="h-[400px] md:h-[500px]">
+                <canvas id="techChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Tab Content: Radar -->
+        <section id="content-radar" class="tab-content bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-700 hidden">
+            <h2 class="text-xl font-semibold mb-4">三強技術雷達圖</h2>
+            <div class="h-[400px] md:h-[500px]">
+                <canvas id="radarChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Tab Content: Milestones -->
+        <section id="content-milestones" class="tab-content bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-700 hidden">
+            <h2 class="text-xl font-semibold mb-4">關鍵里程碑時間線</h2>
+            <div class="relative ml-4" id="milestones-list">
+                <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-600"></div>
+                <!-- Filled by JS -->
+            </div>
+        </section>
+
+        <!-- Tab Content: Compare -->
+        <section id="content-compare" class="tab-content hidden">
+            <!-- Key Players Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-blue-900/30 rounded-xl p-4 border border-blue-700">
+                    <h3 class="text-blue-400 font-semibold mb-2 flex items-center gap-2">
+                        <span class="text-xl">🔬</span> 技術領先者: Google DeepMind
+                    </h3>
+                    <ul class="text-sm text-gray-300 space-y-1">
+                        <li>• Genie 3 實現首個實時互動 World Model</li>
+                        <li>• 720p/24fps 視覺記憶可達1分鐘</li>
+                        <li>• 物理一致性為「湧現」能力</li>
+                        <li>• 與 SIMA Agent 整合驗證 AGI 路徑</li>
+                    </ul>
+                </div>
+                <div class="bg-green-900/30 rounded-xl p-4 border border-green-700">
+                    <h3 class="text-green-400 font-semibold mb-2 flex items-center gap-2">
+                        <span class="text-xl">💼</span> 商業化領先者: NVIDIA
+                    </h3>
+                    <ul class="text-sm text-gray-300 space-y-1">
+                        <li>• Cosmos 開源策略快速建立生態</li>
+                        <li>• Figure AI、1X 等機器人公司採用</li>
+                        <li>• 與 Omniverse 深度整合</li>
+                        <li>• 「讓每個開發者都能觸及通用機器人」</li>
+                    </ul>
+                </div>
+                <div class="bg-purple-900/30 rounded-xl p-4 border border-purple-700">
+                    <h3 class="text-purple-400 font-semibold mb-2 flex items-center gap-2">
+                        <span class="text-xl">🚀</span> 最快成長者: World Labs
+                    </h3>
+                    <ul class="text-sm text-gray-300 space-y-1">
+                        <li>• 2024年9月成立，2025年11月商業化</li>
+                        <li>• 首個提供持久化可下載 3D 環境</li>
+                        <li>• 李飛飛「空間智能」願景驅動</li>
+                        <li>• 已支援 Vision Pro / Quest 3 VR</li>
+                    </ul>
+                </div>
+                <div class="bg-orange-900/30 rounded-xl p-4 border border-orange-700">
+                    <h3 class="text-orange-400 font-semibold mb-2 flex items-center gap-2">
+                        <span class="text-xl">🧠</span> 另闢蹊徑者: Meta (JEPA)
+                    </h3>
+                    <ul class="text-sm text-gray-300 space-y-1">
+                        <li>• LeCun 堅持非生成式路線</li>
+                        <li>• V-JEPA 2 比 Cosmos 快 30x</li>
+                        <li>• 抽象表徵預測而非像素生成</li>
+                        <li>• LeCun 離開 Meta 創業專注 AMI</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <div class="bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-700 mb-6">
+                <h3 class="text-lg font-semibold mb-4">⚔️ Genie 3 vs Marble 核心對比</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-700">
+                                <th class="text-left py-2 px-3 text-gray-400">維度</th>
+                                <th class="text-left py-2 px-3 text-blue-400">Genie 3 (DeepMind)</th>
+                                <th class="text-left py-2 px-3 text-red-400">Marble (World Labs)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-300">
+                            <tr class="border-b border-gray-700/50">
+                                <td class="py-2 px-3 text-gray-400">生成方式</td>
+                                <td class="py-2 px-3">實時逐幀生成</td>
+                                <td class="py-2 px-3">持久化生成後編輯</td>
+                            </tr>
+                            <tr class="border-b border-gray-700/50">
+                                <td class="py-2 px-3 text-gray-400">互動性</td>
+                                <td class="py-2 px-3">即時可控（鍵鼠）</td>
+                                <td class="py-2 px-3">創建後進行編輯</td>
+                            </tr>
+                            <tr class="border-b border-gray-700/50">
+                                <td class="py-2 px-3 text-gray-400">輸出格式</td>
+                                <td class="py-2 px-3">實時視頻流</td>
+                                <td class="py-2 px-3">3D 資產（可導出）</td>
+                            </tr>
+                            <tr class="border-b border-gray-700/50">
+                                <td class="py-2 px-3 text-gray-400">物理理解</td>
+                                <td class="py-2 px-3">湧現式物理一致性</td>
+                                <td class="py-2 px-3">尚未明確建模動態</td>
+                            </tr>
+                            <tr class="border-b border-gray-700/50">
+                                <td class="py-2 px-3 text-gray-400">主要應用</td>
+                                <td class="py-2 px-3">AI Agent 訓練</td>
+                                <td class="py-2 px-3">創意製作、VR/AR</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 px-3 text-gray-400">開放程度</td>
+                                <td class="py-2 px-3">研究預覽</td>
+                                <td class="py-2 px-3">已商業化</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tech Routes -->
+            <div class="bg-gray-800/50 rounded-xl p-4 md:p-6 border border-gray-700">
+                <h3 class="text-lg font-semibold mb-4">🛤️ 兩大技術路線之爭</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-lg p-4 border border-blue-700/50">
+                        <h4 class="font-semibold text-blue-400 mb-2">生成式路線</h4>
+                        <p class="text-xs text-gray-400 mb-2">DeepMind, OpenAI, NVIDIA, World Labs</p>
+                        <ul class="text-sm text-gray-300 space-y-1">
+                            <li>• 直接生成像素/視頻</li>
+                            <li>• 物理理解從規模中「湧現」</li>
+                            <li>• 商業化進展快</li>
+                            <li>• 計算成本較高</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gradient-to-br from-orange-900/30 to-red-900/30 rounded-lg p-4 border border-orange-700/50">
+                        <h4 class="font-semibold text-orange-400 mb-2">表徵預測路線 (JEPA)</h4>
+                        <p class="text-xs text-gray-400 mb-2">Meta (Yann LeCun)</p>
+                        <ul class="text-sm text-gray-300 space-y-1">
+                            <li>• 在抽象空間中預測狀態</li>
+                            <li>• 學習本質結構而非表面</li>
+                            <li>• 效率高（30x faster）</li>
+                            <li>• 仍在研究階段</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-gray-500 text-sm border-t border-gray-700 pt-6">
+            <p>數據來源：公開發布、技術報告、融資消息綜合評估</p>
+            <p class="mt-1">最後更新：2025 年 12 月</p>
+        </footer>
+    </main>
+
+    <script>
+        // ===== DATA =====
+        const colors = {
+            DeepMind: '#4285F4',
+            OpenAI: '#10A37F',
+            Meta: '#0668E1',
+            NVIDIA: '#76B900',
+            WorldLabs: '#FF6B6B',
+            Decart: '#9B59B6',
+            Wayve: '#F39C12'
+        };
+
+        const companyNames = {
+            DeepMind: 'Google DeepMind (Genie)',
+            OpenAI: 'OpenAI (Sora)',
+            Meta: 'Meta (JEPA)',
+            NVIDIA: 'NVIDIA (Cosmos)',
+            WorldLabs: 'World Labs (Marble)',
+            Decart: 'Decart (Oasis)',
+            Wayve: 'Wayve (GAIA)'
+        };
+
+        const timelineLabels = ['2023 Q2', '2023 Q4', '2024 Q1', '2024 Q2', '2024 Q3', '2024 Q4', '2025 Q1', '2025 Q2', '2025 Q3', '2025 Q4'];
+        
+        const timelineData = {
+            DeepMind: [25, 30, 40, 45, 50, 60, 65, 70, 85, 90],
+            OpenAI: [15, 20, 45, 50, 52, 55, 58, 62, 75, 80],
+            Meta: [30, 35, 38, 40, 42, 45, 50, 60, 65, 70],
+            NVIDIA: [10, 15, 20, 25, 35, 50, 65, 70, 75, 80],
+            WorldLabs: [0, 0, 10, 15, 25, 35, 45, 55, 65, 78],
+            Decart: [0, 5, 10, 15, 25, 35, 40, 50, 60, 65],
+            Wayve: [20, 25, 30, 35, 40, 45, 55, 60, 65, 75]
+        };
+
+        const techLabels = ['實時互動', '物理理解', '3D生成', '商業化', '開源生態', '垂直應用'];
+        const techData = {
+            DeepMind: [95, 85, 80, 30, 40, 70],
+            NVIDIA: [60, 85, 75, 90, 95, 95],
+            WorldLabs: [45, 70, 95, 80, 30, 65],
+            OpenAI: [40, 75, 65, 85, 25, 60]
+        };
+
+        const radarLabels = ['實時互動', '物理理解', '3D生成', '商業化', '開源生態', '垂直應用'];
+        const radarData = {
+            DeepMind: [95, 85, 80, 30, 40, 70],
+            NVIDIA: [60, 85, 75, 90, 95, 95],
+            WorldLabs: [45, 70, 95, 80, 30, 65]
+        };
+
+        const milestones = [
+            { date: '2025.12', event: 'GAIA-3 發布', company: 'Wayve', desc: '15B 參數自駕評估突破' },
+            { date: '2025.11', event: 'LeCun 離開Meta創業', company: 'Meta', desc: 'JEPA 路線獨立發展' },
+            { date: '2025.11', event: 'Marble 商業化', company: 'WorldLabs', desc: '首個商業化持久 3D 環境' },
+            { date: '2025.09', event: 'Sora 2 發布', company: 'OpenAI', desc: '物理一致性大幅提升' },
+            { date: '2025.08', event: 'Genie 3 實時互動', company: 'DeepMind', desc: '首個實時互動 World Model' },
+            { date: '2025.06', event: 'V-JEPA 2', company: 'Meta', desc: '效率比 Cosmos 快 30x' },
+            { date: '2025.01', event: 'Cosmos CES發布', company: 'NVIDIA', desc: '開源策略，生態爆發' },
+            { date: '2024.12', event: 'Genie 2 發布', company: 'DeepMind', desc: '可生成 3D 可玩世界' },
+            { date: '2024.10', event: 'Oasis 開源', company: 'Decart', desc: '首個可玩 AI 遊戲' },
+            { date: '2024.09', event: 'World Labs $2.3億融資', company: 'WorldLabs', desc: '李飛飛入場' },
+            { date: '2024.03', event: 'Genie 1 發布', company: 'DeepMind', desc: '首個基礎世界模型' },
+            { date: '2024.02', event: 'Sora 預覽震撼業界', company: 'OpenAI', desc: '視頻生成的 GPT-1 時刻' },
+            { date: '2023.06', event: 'I-JEPA 發布', company: 'Meta', desc: '開創非生成式路線' },
+        ];
+
+        // ===== RANKINGS =====
+        const latestScores = Object.entries(timelineData).map(([name, data]) => ({
+            name,
+            score: data[data.length - 1]
+        })).sort((a, b) => b.score - a.score);
+
+        const rankingsEl = document.getElementById('rankings');
+        latestScores.forEach((r, i) => {
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+            rankingsEl.innerHTML += `
+                <div class="text-center p-2 bg-gray-700/30 rounded-lg">
+                    <div class="text-xl md:text-2xl mb-1">${medal}</div>
+                    <div class="text-xs font-medium truncate" style="color: ${colors[r.name]}">${r.name}</div>
+                    <div class="text-lg font-bold text-white">${r.score}</div>
+                </div>
+            `;
+        });
+
+        // ===== MILESTONES =====
+        const milestonesEl = document.getElementById('milestones-list');
+        milestones.forEach(m => {
+            milestonesEl.innerHTML += `
+                <div class="relative pl-6 pb-4">
+                    <div class="timeline-dot" style="background-color: ${colors[m.company]}"></div>
+                    <div class="bg-gray-700/50 rounded-lg px-4 py-3 hover:bg-gray-700/70 transition-colors">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-1">
+                            <span class="text-white font-medium">${m.event}</span>
+                            <span class="text-gray-400 text-sm">${m.date}</span>
+                        </div>
+                        <div class="flex flex-col md:flex-row md:items-center gap-1 mt-1">
+                            <span class="text-xs px-2 py-0.5 rounded-full inline-block w-fit" 
+                                  style="background-color: ${colors[m.company]}30; color: ${colors[m.company]}">
+                                ${companyNames[m.company]}
+                            </span>
+                            <span class="text-gray-400 text-sm">${m.desc}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // ===== CHARTS =====
+        Chart.defaults.color = '#9CA3AF';
+        Chart.defaults.borderColor = '#374151';
+
+        // Timeline Chart
+        const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+        new Chart(timelineCtx, {
+            type: 'line',
+            data: {
+                labels: timelineLabels,
+                datasets: Object.entries(timelineData).map(([name, data]) => ({
+                    label: name,
+                    data: data,
+                    borderColor: colors[name],
+                    backgroundColor: colors[name] + '20',
+                    borderWidth: name === 'DeepMind' || name === 'NVIDIA' ? 3 : 2,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true, padding: 15 }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: '#1F2937',
+                        titleColor: '#fff',
+                        bodyColor: '#9CA3AF',
+                        borderColor: '#374151',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 100,
+                        grid: { color: '#374151' }
+                    },
+                    x: {
+                        grid: { color: '#374151' }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // Tech Chart
+        const techCtx = document.getElementById('techChart').getContext('2d');
+        new Chart(techCtx, {
+            type: 'bar',
+            data: {
+                labels: techLabels,
+                datasets: Object.entries(techData).map(([name, data]) => ({
+                    label: name,
+                    data: data,
+                    backgroundColor: colors[name] + 'CC',
+                    borderColor: colors[name],
+                    borderWidth: 1
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true, padding: 15 }
+                    }
+                },
+                scales: {
+                    x: {
+                        min: 0,
+                        max: 100,
+                        grid: { color: '#374151' }
+                    },
+                    y: {
+                        grid: { color: '#374151' }
+                    }
+                }
+            }
+        });
+
+        // Radar Chart
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: radarLabels,
+                datasets: Object.entries(radarData).map(([name, data]) => ({
+                    label: name,
+                    data: data,
+                    borderColor: colors[name],
+                    backgroundColor: colors[name] + '30',
+                    borderWidth: 2,
+                    pointBackgroundColor: colors[name]
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true, padding: 15 }
+                    }
+                },
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 100,
+                        ticks: { stepSize: 20, color: '#6B7280' },
+                        grid: { color: '#374151' },
+                        angleLines: { color: '#374151' },
+                        pointLabels: { color: '#9CA3AF', font: { size: 12 } }
+                    }
+                }
+            }
+        });
+
+        // ===== TAB SWITCHING =====
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update button styles
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Show/hide content
+                const tabId = btn.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById('content-' + tabId).classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

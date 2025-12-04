@@ -2,6 +2,8 @@ import { h, computed } from 'vue'
 import DefaultTheme from 'vitepress/theme'
 import { useData, useRoute } from 'vitepress'
 import type { Theme } from 'vitepress'
+import './custom.css'
+import FontSizeController from './components/FontSizeController.vue'
 
 // @ts-ignore - Vue 組件導入
 
@@ -17,7 +19,8 @@ export default {
     })
 
     return h(DefaultTheme.Layout, null, {
-      // layout-bottom slot removed
+      // 在頁面底部添加字型大小控制器
+      'layout-bottom': () => h(FontSizeController)
     })
   },
   enhanceApp({ app }) {

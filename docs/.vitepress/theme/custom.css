@@ -1,0 +1,114 @@
+/**
+ * 自定義字型大小設定
+ * 可根據需求調整以下數值
+ */
+
+:root {
+  /* 基礎字型大小 */
+  --vp-font-size-base: 16px;
+  
+  /* 內容區域字型大小 */
+  --vp-font-size-text: 16px;
+  
+  /* 標題字型大小 */
+  --vp-font-size-h1: 2rem;      /* 32px */
+  --vp-font-size-h2: 1.75rem;   /* 28px */
+  --vp-font-size-h3: 1.5rem;    /* 24px */
+  --vp-font-size-h4: 1.25rem;   /* 20px */
+  --vp-font-size-h5: 1.125rem;  /* 18px */
+  --vp-font-size-h6: 1rem;      /* 16px */
+}
+
+/* 文章內容字型大小 */
+.vp-doc {
+  font-size: var(--vp-font-size-text);
+  line-height: 1.7;
+}
+
+/* 段落文字 */
+.vp-doc p {
+  font-size: var(--vp-font-size-text);
+  line-height: 1.7;
+}
+
+/* 列表文字 */
+.vp-doc ul,
+.vp-doc ol {
+  font-size: var(--vp-font-size-text);
+}
+
+/* 程式碼區塊 */
+.vp-doc code {
+  font-size: 0.9em;
+}
+
+/* 引用區塊 */
+.vp-doc blockquote {
+  font-size: var(--vp-font-size-text);
+}
+
+/* 表格文字 */
+.vp-doc table {
+  font-size: 0.95em;
+}
+
+/* 標題樣式 */
+.vp-doc h1 {
+  font-size: var(--vp-font-size-h1);
+  line-height: 1.3;
+}
+
+.vp-doc h2 {
+  font-size: var(--vp-font-size-h2);
+  line-height: 1.3;
+}
+
+.vp-doc h3 {
+  font-size: var(--vp-font-size-h3);
+  line-height: 1.4;
+}
+
+.vp-doc h4 {
+  font-size: var(--vp-font-size-h4);
+  line-height: 1.4;
+}
+
+.vp-doc h5 {
+  font-size: var(--vp-font-size-h5);
+  line-height: 1.5;
+}
+
+.vp-doc h6 {
+  font-size: var(--vp-font-size-h6);
+  line-height: 1.5;
+}
+
+/* 側邊欄字型大小 */
+.VPSidebar {
+  font-size: 15px;
+}
+
+/* 導航欄字型大小 */
+.VPNav {
+  font-size: 15px;
+}
+
+/* 響應式設計：在小螢幕上稍微縮小字型 */
+@media (max-width: 768px) {
+  :root {
+    --vp-font-size-base: 15px;
+    --vp-font-size-text: 15px;
+  }
+  
+  .vp-doc h1 {
+    font-size: 1.75rem;
+  }
+  
+  .vp-doc h2 {
+    font-size: 1.5rem;
+  }
+  
+  .vp-doc h3 {
+    font-size: 1.25rem;
+  }
+}

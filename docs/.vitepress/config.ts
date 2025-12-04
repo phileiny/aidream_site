@@ -34,6 +34,7 @@ export default defineConfig({
           text: 'AI Articles',
           items: [
             { text: 'Index', link: '/ai/' },
+            { text: 'World Model：通往 AGI 的關鍵賽道', link: '/ai/world-model-agi-blog' },
             { text: '從《The Thinking Game》看 AGI：一場潛能的挖掘與覺醒', link: '/ai/agi-awakening-blog' },
             { text: '多代理系統架構設計與 A2A / MCP 協議:給 AI 應用開發團隊的實戰指南', link: '/ai/multi-agent-a2a-protocol-blog' },
             { text: 'Embedding Atlas:讓 AI 幫你把大量文字變成一張藏寶圖', link: '/ai/embedding-atlas-intro' },

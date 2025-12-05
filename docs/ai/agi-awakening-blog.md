@@ -2,6 +2,9 @@
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/iMnFCOI_Nv0" frameborder="0" allowfullscreen></iframe>
 
+**作者**：Ray
+**日期**：2025 年 12 月  
+
 ---
 
 ## 前言：我們距離 AGI 還有多遠？
@@ -87,7 +90,5 @@ Hassabis 或許就是那種「被選中的載體」——他的天賦、他的�
 智能的潛能一直都在那裡。我們只是終於找到了方式，讓它顯現。
 
 ---
-
-*本文整理自與 Claude 的對話，靈感來自 Google DeepMind 紀錄片《The Thinking Game》*
 
 *相關連結：[The Thinking Game 完整紀錄片](https://www.youtube.com/watch?v=d95J8yzvjbQ)*

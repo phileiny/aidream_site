@@ -58,6 +58,7 @@ export default defineConfig({
           text: 'Project Articles',
           items: [
             { text: 'Index', link: '/project/' },
+            { text: 'Vibe Coding 實戰指南:PIV 框架與三大黃金法則', link: '/project/vibe-coding-piv-framework' },
             { text: '從單一 AI Agent 到專家團隊:咩猛Memo 架構演進之路', link: '/project/multi-agent-architecture' },
             { text: 'InsightCosmos 專案發想', link: '/project/InsightCosmos_Full_Writeup_FULL_zh_TW' }
           ]

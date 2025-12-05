@@ -4,6 +4,9 @@
 >
 > 🎮 線上 Demo：[https://apple.github.io/embedding-atlas](https://apple.github.io/embedding-atlas)
 
+**作者**：Ray
+**日期**：2025 年 11 月  
+
 ---
 
 ## 前言：大量文字資料的困境

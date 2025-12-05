@@ -2,9 +2,8 @@
 
 > 當 AI 學會「想像」世界，機器才能真正理解現實
 
-**作者**：AI 技術觀察  
+**作者**：Ray
 **日期**：2025 年 12 月  
-**閱讀時間**：約 15 分鐘
 
 ---
 
@@ -576,8 +575,4 @@ World Model 不僅僅是一項技術進步，它代表著我們對「智能」�
 - 李飛飛：From Words to Worlds: Spatial Intelligence is AI's Next Frontier
 - Quanta Magazine: World Models, an Old Idea in AI, Mount a Comeback
 
----
 
-*本文最後更新：2025 年 12 月*
-
-*如有任何問題或建議，歡迎交流討論。*

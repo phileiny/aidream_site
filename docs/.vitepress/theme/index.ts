@@ -19,8 +19,8 @@ export default {
     })
 
     return h(DefaultTheme.Layout, null, {
-      // 在頁面底部添加字型大小控制器
-      'layout-bottom': () => h(FontSizeController)
+      // 在導航欄右側添加字型大小控制器（固定位置）
+      'nav-bar-content-after': () => h(FontSizeController)
     })
   },
   enhanceApp({ app }) {

@@ -96,9 +96,10 @@ onMounted(() => {
 
 <style scoped>
 .font-size-controller {
-  position: fixed;
-  top: 12px;
-  right: 80px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 12px;
   z-index: 100;
 }
 
@@ -287,8 +288,7 @@ onMounted(() => {
 /* 響應式設計 */
 @media (max-width: 768px) {
   .font-size-controller {
-    top: 10px;
-    right: 60px;
+    margin-left: 8px;
   }
   
   .font-size-btn {
@@ -297,8 +297,9 @@ onMounted(() => {
   }
   
   .font-size-panel {
-    width: calc(100vw - 32px);
-    right: -60px;
+    width: 260px;
+    right: 0;
   }
 }
+
 </style>

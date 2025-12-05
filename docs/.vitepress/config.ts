@@ -65,9 +65,6 @@ export default defineConfig({
         }
       ]
     },
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/yourname' }
-    ],
     footer: {
       message: 'MIT Licensed',
       copyright: '© ' + new Date().getFullYear() + ' 星智未來'

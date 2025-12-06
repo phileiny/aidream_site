@@ -12,8 +12,8 @@ export default defineConfig({
   lastUpdated: true,
   sitemap: { hostname: 'https://phileiny.github.io/aidream_site' }, // GitHub Pages 網址
   head: [
-    ['script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX' }],
-    ['script', {}, `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-XXXXXXX');`],
+    ['script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-LQETK33MRL' }],
+    ['script', {}, `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-LQETK33MRL');`],
     ['meta', { name: 'referrer', content: 'no-referrer-when-downgrade' }],
     ['link', { rel: 'icon', href: '/favicon.ico' }],
     ['meta', { name: 'theme-color', content: '#111827' }],

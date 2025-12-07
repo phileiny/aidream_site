@@ -4,13 +4,13 @@
     <title><![CDATA[星智未來 Aidream]]></title>
     <link>https://your-domain.example</link>
     <description><![CDATA[星智未來｜以 AI 與工程實踐創造價值]]></description>
-    <lastBuildDate>Sat, 06 Dec 2025 03:48:10 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 07 Dec 2025 14:10:14 GMT</lastBuildDate>
     
   <item>
     <title><![CDATA[網站上線：架構與寫作流程]]></title>
     <link>https://your-domain.example/posts/hello-aidream</link>
     <guid>https://your-domain.example/posts/hello-aidream</guid>
-    <pubDate>Sat, 06 Dec 2025 03:47:32 GMT</pubDate>
+    <pubDate>Sun, 07 Dec 2025 14:09:37 GMT</pubDate>
     <description><![CDATA[# 網站上線：架構與寫作流程  歡迎來到 **星智未來** 的新官網與部落格！  ## 寫作方式 - 在 `docs/posts/` 目錄新增 Markdown 檔案（例如：`2025-01-first.md`）。 - 文章中的圖片請放到 `docs/public/images/`，在文中以相對路徑引用：   ```md   ![說明文字](/images/sample.png)   ```  #]]></description>
   </item>
 
@@ -19,7 +19,7 @@
     <title><![CDATA[文章索引]]></title>
     <link>https://your-domain.example/posts/index</link>
     <guid>https://your-domain.example/posts/index</guid>
-    <pubDate>Sat, 06 Dec 2025 03:47:32 GMT</pubDate>
+    <pubDate>Sun, 07 Dec 2025 14:09:37 GMT</pubDate>
     <description><![CDATA[# 文章索引  最新文章：  - [網站上線：架構與寫作流程](/posts/hello-aidream)]]></description>
   </item>
 

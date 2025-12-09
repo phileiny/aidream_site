@@ -4,6 +4,7 @@ Welcome to the AI articles section. Here you will find posts about Artificial In
 
 ## Recent Posts
 
+- [從零開始挑戰 Stanford CS336：我的 LLM 自學先修攻略](./CS336_Learning_Path_Blog)
 - [World Model：通往 AGI 的關鍵賽道](./world-model-agi-blog)
 - [從《The Thinking Game》看 AGI：一場潛能的挖掘與覺醒](./agi-awakening-blog)
 - [多代理系統架構設計與 A2A / MCP 協議:給 AI 應用開發團隊的實戰指南](./multi-agent-a2a-protocol-blog)

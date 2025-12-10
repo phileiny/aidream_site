@@ -56,73 +56,88 @@
 
 ---
 
-## 階段一：打好基礎（Week 1-2）
+## 階段一：自動微分的魔法（Week 1-2）
 
-### PyTorch 不只是 `import torch`
+### 從 micrograd 開始
 
-第一個震撼教育：課程要求你**不能用 `torch.nn.Linear`**。
+Karpathy 的 [micrograd 影片](https://www.youtube.com/watch?v=VMj-3S1tku0) 是整個旅程的起點。用不到 100 行 Python，你會親手打造一個自動微分引擎。
 
-這意味著你要能手寫這樣的東西：
+這兩週你會學到：
+
+- **什麼是計算圖**：每個運算都是節點，backward 就是沿著圖反向傳播
+- **Chain rule 的實際應用**：不再是課本上的公式，而是真的寫出來
+- **為什麼深度學習框架都長這樣**：PyTorch、TensorFlow 底層都是這套邏輯
 
 ```python
-class MyLinear:
-    def __init__(self, in_features, out_features):
-        self.weight = torch.randn(out_features, in_features) * 0.01
-        self.bias = torch.zeros(out_features)
+# micrograd 的核心概念
+class Value:
+    def __init__(self, data):
+        self.data = data
+        self.grad = 0
+        self._backward = lambda: None
     
-    def forward(self, x):
-        return x @ self.weight.T + self.bias
+    def __mul__(self, other):
+        out = Value(self.data * other.data)
+        def _backward():
+            self.grad += other.data * out.grad
+            other.grad += self.data * out.grad
+        out._backward = _backward
+        return out
 ```
 
-而且要理解為什麼 `view()` 和 `reshape()` 不一樣，什麼時候 tensor 會不是 contiguous，以及如何用 `einsum` 優雅地做 batch matrix multiply。
+這段程式碼看起來簡單，但理解它之後，你會對神經網路的訓練過程有完全不同的認識。
 
-**我的學習資源**：
-- [PyTorch 官方教程 - Learning PyTorch with Examples](https://pytorch.org/tutorials/beginner/pytorch_with_examples.html)
-- 從 numpy 手寫到 autograd 的完整過程
+### 數學卡關怎麼辦？
 
-### 線性代數：被遺忘的基礎
+如果你對微分的 chain rule 生疏了，不用慌。先看 [3Blue1Brown 的微積分系列](https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr) 的第 1-4 集，大概 1 小時就能撿回來。
 
-說實話，大學學的線性代數早就還給老師了。但 Transformer 裡面全是矩陣操作，不得不撿回來。
-
-推薦 **3Blue1Brown 的 Essence of Linear Algebra** 系列，用視覺化的方式重新理解矩陣的幾何意義。看完之後，終於懂了為什麼矩陣乘法是那樣定義的。
+**重點**：不需要先把數學全補完再開始。跟著影片做，遇到卡的地方再回去補，效率更高。
 
 ---
 
-## 階段二：深度學習核心（Week 3-5）
+## 階段二：語言模型實戰（Week 3-5）
 
-### Karpathy 的 Zero to Hero 系列
+### makemore：從字元到神經網路（Week 3-4）
 
-這是我找到最好的熱身材料。Andrej Karpathy（前 Tesla AI 總監）做了一系列從零開始的教學：
+[makemore 系列](https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ) 有 5 支影片，帶你從最簡單的 bigram 一路做到 WaveNet 風格的模型。
 
-1. **micrograd** — 用 100 行 Python 寫一個自動微分引擎
-2. **makemore** — 從 bigram 到 MLP 到 RNN 的語言模型
-3. **nanoGPT** — 完整的 GPT 實作
+這兩週你會經歷：
 
-這個系列的精神跟 CS336 完全一致：**不用現成的，自己寫**。
+1. **Bigram** — 最簡單的統計語言模型
+2. **MLP** — 加入 embedding 和隱藏層
+3. **BatchNorm** — 理解為什麼訓練會不穩定，以及怎麼解決
+4. **Backprop 手推** — 不靠 autograd，自己算梯度
+5. **WaveNet** — 更深的架構
 
-花兩週把這三個專案跑完，對神經網路的理解會完全不一樣。
+這裡會大量用到 PyTorch 的 tensor 操作。如果 `view()`、`reshape()`、broadcasting 讓你頭痛，先去看 [PyTorch 官方教程](https://pytorch.org/tutorials/beginner/pytorch_with_examples.html)。
 
-### Transformer：真的讀懂那篇論文
+### GPT：Transformer 的完整實作（Week 5）
 
-"Attention is All You Need" 大概是被引用最多、但真正讀完的人最少的論文之一。
+到了 [GPT 影片](https://www.youtube.com/watch?v=kCc8FmEb1nY)，你會親手寫出一個能生成文字的 Transformer。
 
-這次我逼自己把每個公式都搞懂：
+這週的重點：
 
 $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
 
-**幾個之前一直搞不清楚的點**：
+**幾個關鍵概念**：
 
-1. **為什麼要除以 √d_k？** — 防止 dot product 在高維度時數值太大，導致 softmax 梯度消失
+- **為什麼要除以 √d_k？** — 防止 dot product 在高維度時數值太大，導致 softmax 梯度消失
+- **Multi-head 到底在幹嘛？** — 讓模型能同時關注不同位置的不同表示子空間
+- **Causal masking 怎麼實作？** — 用一個上三角矩陣把未來的 token 遮掉
 
-2. **Multi-head 到底在幹嘛？** — 讓模型能同時關注不同位置的不同表示子空間
+如果 attention 機制讓你困惑，推薦 **Jay Alammar 的 [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)**，用圖解的方式把整個架構講得很清楚。
 
-3. **Causal masking 怎麼實作？** — 用一個上三角矩陣把未來的 token 遮掉
+---
 
-推薦 **Jay Alammar 的 The Illustrated Transformer**，用圖解的方式把整個架構講得很清楚。
+## 階段三：系統與 GPU（Week 6-7）
 
-### Adam 優化器：不只是 `torch.optim.Adam`
+### Week 6：數學補強
 
-Assignment 1 要你手寫 Adam。這逼我真的去理解那個公式：
+到這裡，你已經完成了 Karpathy 的核心系列。這週是回顧和補強的時間：
+
+- 把之前跳過的數學細節補回來
+- 複習線性代數（推薦 [3Blue1Brown 的系列](https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab)）
+- 理解 Adam 優化器的公式：
 
 ```
 m = β₁ * m + (1 - β₁) * gradient        # 一階動量
@@ -134,11 +149,7 @@ param = param - lr * m_hat / (√v_hat + ε)
 
 Bias correction 那兩行是關鍵——因為 m 和 v 初始化為 0，前幾步會嚴重偏向 0，需要修正。
 
----
-
-## 階段三：系統與 GPU（Week 6-7）
-
-### GPU 不只是「比較快的 CPU」
+### Week 7：GPU 概念與 CS336 準備
 
 這部分是我最弱的。之前的認知就是「丟到 GPU 上會比較快」，但不知道為什麼。
 
@@ -205,15 +216,33 @@ def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
 
 ## 我的學習時間表
 
-| 週數 | 主題 | 產出 |
-|------|------|------|
-| Week 1 | PyTorch 進階 + 線性代數 | 手寫 Linear、ReLU、Softmax |
-| Week 2 | 機率統計 + 神經網路基礎 | 理解 backpropagation |
-| Week 3 | Karpathy micrograd + makemore | 完成 micrograd |
-| Week 4 | Transformer 論文 + 實作 | 手寫 self-attention |
-| Week 5 | 優化器 + nanoGPT | 手寫 Adam |
-| Week 6 | GPU 概念 + Triton 入門 | 完成 vector add kernel |
-| Week 7 | 分散式訓練 + 總複習 | 理解 DDP |
+跟著 [Andrej Karpathy](https://www.youtube.com/@AndrejKarpathy) 的影片系列學習：
+
+| 週數 | 主題 | 影片資源 | 產出 |
+|------|------|----------|------|
+| Week 1-2 | micrograd | [影片](https://www.youtube.com/watch?v=VMj-3S1tku0) | 自動微分引擎 |
+| Week 3-4 | makemore | [播放清單](https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ) | 語言模型 |
+| Week 5 | GPT | [影片](https://www.youtube.com/watch?v=kCc8FmEb1nY) | Transformer 實作 |
+| Week 6 | 數學補強 | 按需學習 | 線代、機率複習 |
+| Week 7 | GPU + CS336 準備 | 課程資料 | Triton 入門、理解 DDP |
+
+### 卡關時去哪補？
+
+學習過程中遇到數學或概念卡關是正常的，以下是各階段常見的卡點和對應資源：
+
+**Week 1-2 micrograd 階段**
+- 卡在 chain rule / backprop → [3Blue1Brown 微積分系列](https://www.youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr)
+- 不懂為什麼要算 gradient → [3Blue1Brown 神經網路系列](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
+
+**Week 3-4 makemore 階段**
+- 矩陣運算看不懂 → [3Blue1Brown 線性代數](https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab)
+- PyTorch tensor 操作不熟 → [PyTorch 官方教程](https://pytorch.org/tutorials/beginner/pytorch_with_examples.html)
+
+**Week 5 GPT 階段**
+- Attention 公式推導 → [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
+- 不懂 softmax / cross-entropy → 回去看 makemore Part 1 的解說
+
+**原則**：先試著跟完影片，真的卡住再去補。不要預先焦慮，很多東西在動手做的過程中會自然理解。
 
 ---
 

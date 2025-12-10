@@ -29,6 +29,13 @@ features:
 
 ## 📝 最新文章
 
+### [破解配送機器人的 2.4G 本地通訊協議：一場逆向工程的冒險](/project/yogo-2.4g-reverse-engineering-blog)
+**專案** · 2025-12-10
+
+記錄逆向工程某款配送機器人 2.4G 無線通訊協議的過程，從雲端 Log 分析到 RF 參數破解，揭開隱藏在電波中的秘密。
+
+---
+
 ### [從零開始挑戰 Stanford CS336：我的 LLM 自學先修攻略](/ai/CS336_Learning_Path_Blog)
 **AI** · 2025-12-09
 
@@ -54,17 +61,3 @@ features:
 **AI** · 2025-12-04
 
 當 AI 學會「想像」世界，機器才能真正理解現實。深入探討 World Model 技術如何成為通往 AGI 的必經之路，以及各大科技巨頭的佈局策略。
-
----
-
-### [從《The Thinking Game》看 AGI：一場潛能的挖掘與覺醒](/ai/agi-awakening-blog)
-**AI** · 2025-12-03
-
-我們距離 AGI 誕生的時間已經不遠了。從 DeepMind 紀錄片看 Demis Hassabis 的覺醒之路，探討 AGI 作為潛能存在的哲學意涵。
-
----
-
-### [VLA 技術深度解析：從原理到 Mantis 實戰應用](/robot/VLA技術深度解析_從原理到Mantis實戰應用)
-**機器人** · 2025-11-30
-
-深入探討 Vision-Language-Action (VLA) 模型的技術原理，以及在 Mantis 機器人上的實際應用案例。

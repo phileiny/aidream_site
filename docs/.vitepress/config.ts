@@ -50,6 +50,7 @@ export default defineConfig({
           text: 'Robot Articles',
           items: [
             { text: 'Index', link: '/robot/' },
+            { text: '台灣 AI 機器人產業全景:從政策到落地的關鍵布局', link: '/robot/taiwan-ai-robotics-blog' },
             { text: 'VLA 技術深度解析:從原理到 Mantis 實戰應用', link: '/robot/VLA技術深度解析_從原理到Mantis實戰應用' }
           ]
         }

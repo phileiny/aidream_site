@@ -5,12 +5,11 @@ export default defineConfig({
   title: '星智未來',
   description: '星智未來｜以 AI 與工程實踐創造價值',
   lang: 'zh-Hant',
-  // 若部署在 GitHub Pages 子路徑(https://<user>.github.io/<repo>/)，需設定 base
-  // 將 <repo> 改為你的 Repo 名稱
-  base: '/aidream_site/',
+  // 使用自訂網域時，base 設為 '/'
+  base: '/',
   cleanUrls: true,
   lastUpdated: true,
-  sitemap: { hostname: 'https://phileiny.github.io/aidream_site' }, // GitHub Pages 網址
+  sitemap: { hostname: 'https://blog.aidream.com.tw' },
   head: [
     ['script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-LQETK33MRL' }],
     ['script', {}, `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-LQETK33MRL');`],
@@ -26,6 +25,7 @@ export default defineConfig({
       { text: 'AI', link: '/ai/' },
       { text: '機器人', link: '/robot/' },
       { text: '專案', link: '/project/' },
+      { text: '學習', link: '/learning/' },
       { text: '關於', link: '/about' }
     ],
     sidebar: {
@@ -34,7 +34,6 @@ export default defineConfig({
           text: 'AI Articles',
           items: [
             { text: 'Index', link: '/ai/' },
-            { text: '從零開始挑戰 Stanford CS336：我的 LLM 自學先修攻略', link: '/ai/CS336_Learning_Path_Blog' },
             { text: 'World Model：通往 AGI 的關鍵賽道', link: '/ai/world-model-agi-blog' },
             { text: '從《The Thinking Game》看 AGI：一場潛能的挖掘與覺醒', link: '/ai/agi-awakening-blog' },
             { text: '多代理系統架構設計與 A2A / MCP 協議:給 AI 應用開發團隊的實戰指南', link: '/ai/multi-agent-a2a-protocol-blog' },
@@ -65,6 +64,22 @@ export default defineConfig({
             { text: 'Vibe Coding 實戰指南:PIV 框架與三大黃金法則', link: '/project/vibe-coding-piv-framework' },
             { text: '從單一 AI Agent 到專家團隊:咩猛Memo 架構演進之路', link: '/project/multi-agent-architecture' },
             { text: 'InsightCosmos 專案發想', link: '/project/InsightCosmos_Full_Writeup_FULL_zh_TW' }
+          ]
+        }
+      ],
+      '/learning/': [
+        {
+          text: '學習專區',
+          items: [
+            { text: 'Index', link: '/learning/' }
+          ]
+        },
+        {
+          text: 'CS336 學習筆記',
+          collapsed: false,
+          items: [
+            { text: '總覽', link: '/learning/cs336/' },
+            { text: '先修攻略：我的 LLM 自學先修計畫', link: '/learning/cs336/CS336_Learning_Path_Blog' }
           ]
         }
       ]

@@ -33,4 +33,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/.vitepress/dist
-          # cname: aidream.example  # 若要自訂網域，取消註解並改成你的網域
+          cname: blog.aidream.com.tw

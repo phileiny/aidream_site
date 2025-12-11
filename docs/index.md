@@ -25,6 +25,9 @@ features:
   - title: 專案
     details: 我們的專案展示與經驗分享。
     link: /project/
+  - title: 學習
+    details: 長期學習路徑的筆記與心得。
+    link: /learning/
 ---
 
 ## 📝 最新文章
@@ -43,8 +46,8 @@ features:
 
 ---
 
-### [從零開始挑戰 Stanford CS336：我的 LLM 自學先修攻略](/ai/CS336_Learning_Path_Blog)
-**AI** · 2025-12-09
+### [從零開始挑戰 Stanford CS336：我的 LLM 自學先修攻略](/learning/cs336/CS336_Learning_Path_Blog)
+**學習** · 2025-12-09
 
 如果你想真正理解 LLM 的每一層細節，而不只是當個 API caller，這門課就是為你設計的。本文分享我的 7 週先修補強計畫。
 

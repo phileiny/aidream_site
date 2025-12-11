@@ -15,6 +15,7 @@
 ### 先修階段（7 週）
 
 - [從零開始挑戰 Stanford CS336：我的 LLM 自學先修攻略](./CS336_Learning_Path_Blog)
+- [Week 1：Micrograd 深度拆解](./CS336_Week1_Micrograd_Deep_Dive)
 
 ### 正式課程（10 週）
 

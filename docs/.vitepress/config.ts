@@ -79,7 +79,8 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: '總覽', link: '/learning/cs336/' },
-            { text: '先修攻略：我的 LLM 自學先修計畫', link: '/learning/cs336/CS336_Learning_Path_Blog' }
+            { text: '先修攻略：我的 LLM 自學先修計畫', link: '/learning/cs336/CS336_Learning_Path_Blog' },
+            { text: 'Week 1：Micrograd 深度拆解', link: '/learning/cs336/CS336_Week1_Micrograd_Deep_Dive' }
           ]
         }
       ]

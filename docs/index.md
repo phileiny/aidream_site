@@ -32,6 +32,13 @@ features:
 
 ## 📝 最新文章
 
+### [CS336 Week 1：Micrograd 深度拆解](/learning/cs336/CS336_Week1_Micrograd_Deep_Dive)
+**學習** · 2025-12-11
+
+當我們把「可怕的術語」翻譯成「12 歲也懂的白話文」，一切就不一樣了。本文記錄 Week 1 學習 micrograd 的概念筆記。
+
+---
+
 ### [台灣 AI 機器人產業全景：從政策到落地的關鍵布局](/robot/taiwan-ai-robotics-blog)
 **機器人** · 2025-12-11
 
@@ -58,9 +65,3 @@ features:
 
 有些東西做出來不是為了有用，而是為了好玩。這個小專案從動念到上線大概花了一個晚上，沒有商業價值，沒有什麼技術突破，就只是把一個埋在心裡很久的小念頭，趁著手順的時候實現了。
 
----
-
-### [Vibe Coding 實戰指南：PIV 框架與三大黃金法則](/project/vibe-coding-piv-framework)
-**專案** · 2025-12-05
-
-當 AI 成為你的 Pair Programming 夥伴，你需要的不是更多技術，而是更好的協作框架。本文介紹 PIV 框架與三大黃金法則，幫助你在 Vibe Coding 中保持掌控感，同時最大化 AI 的生產力。

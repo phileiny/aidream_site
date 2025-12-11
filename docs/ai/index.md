@@ -4,6 +4,7 @@ Welcome to the AI articles section. Here you will find posts about Artificial In
 
 ## Recent Posts
 
+- [當 AI 飛向太空：nanoGPT 上軌道背後的科技巨頭競賽](./space-ai-race-blog)
 - [World Model：通往 AGI 的關鍵賽道](./world-model-agi-blog)
 - [從《The Thinking Game》看 AGI：一場潛能的挖掘與覺醒](./agi-awakening-blog)
 - [多代理系統架構設計與 A2A / MCP 協議:給 AI 應用開發團隊的實戰指南](./multi-agent-a2a-protocol-blog)

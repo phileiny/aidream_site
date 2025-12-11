@@ -32,6 +32,13 @@ features:
 
 ## 📝 最新文章
 
+### [當 AI 飛向太空：nanoGPT 上軌道背後的科技巨頭競賽](/ai/space-ai-race-blog)
+**AI** · 2025-12-11
+
+從 Andrej Karpathy 的一則推文，看見 AI 算力競賽的下一個戰場。Starcloud 在太空中訓練了第一個 LLM，Google、SpaceX 也紛紛加入戰局。
+
+---
+
 ### [CS336 Week 1：Micrograd 深度拆解](/learning/cs336/CS336_Week1_Micrograd_Deep_Dive)
 **學習** · 2025-12-11
 

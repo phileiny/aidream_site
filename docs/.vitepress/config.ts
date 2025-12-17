@@ -60,6 +60,7 @@ export default defineConfig({
           text: 'Project Articles',
           items: [
             { text: 'Index', link: '/project/' },
+            { text: '從零開始搞懂 GitHub 協作：開源新手必讀的名詞大全', link: '/project/github-collaboration-blog' },
             { text: '破解配送機器人的 2.4G 本地通訊協議：一場逆向工程的冒險', link: '/project/yogo-2.4g-reverse-engineering-blog' },
             { text: '用滑鼠畫軌道，讓彈珠滾起來——我的彈珠雲霄飛車模擬器', link: '/project/marble-run-blog' },
             { text: 'Vibe Coding 實戰指南:PIV 框架與三大黃金法則', link: '/project/vibe-coding-piv-framework' },

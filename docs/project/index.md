@@ -4,6 +4,7 @@ Welcome to the Project articles section. Here you will find posts about our Proj
 
 ## Recent Posts
 
+- [微微創公司的 AI 生存指南：不建護城河，建關係](./micro-startup-ai-era)
 - [AI 時代的軟體開發革命：有經驗開發者的新機會](./ai_software_development_blog)
 - [從零開始搞懂 GitHub 協作：開源新手必讀的名詞大全](./github-collaboration-blog)
 - [破解配送機器人的 2.4G 本地通訊協議：一場逆向工程的冒險](./yogo-2.4g-reverse-engineering-blog)

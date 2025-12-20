@@ -32,6 +32,13 @@ features:
 
 ## 📝 最新文章
 
+### [微微創公司的 AI 生存指南：不建護城河，建關係](/project/micro-startup-ai-era)
+**專案** · 2025-12-20
+
+在 AI 讓技術護城河瞬間崩塌的時代，1-3 人的微微創公司如何生存？本文提出三條可行路線：垂直場景 AI 管家、Forward Deployed AI Engineer、以及用 AI 放大你獨有的關係與眼光。
+
+---
+
 ### [AI 時代的軟體開發革命：有經驗開發者的新機會](/project/ai_software_development_blog)
 **專案** · 2025-12-19
 

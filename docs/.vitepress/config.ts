@@ -60,6 +60,7 @@ export default defineConfig({
           text: 'Project Articles',
           items: [
             { text: 'Index', link: '/project/' },
+            { text: '微微創公司的 AI 生存指南：不建護城河，建關係', link: '/project/micro-startup-ai-era' },
             { text: 'AI 時代的軟體開發革命：有經驗開發者的新機會', link: '/project/ai_software_development_blog' },
             { text: '從零開始搞懂 GitHub 協作：開源新手必讀的名詞大全', link: '/project/github-collaboration-blog' },
             { text: '破解配送機器人的 2.4G 本地通訊協議：一場逆向工程的冒險', link: '/project/yogo-2.4g-reverse-engineering-blog' },

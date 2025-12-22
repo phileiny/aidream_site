@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig, type HeadConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -11,13 +11,49 @@ export default defineConfig({
   lastUpdated: true,
   sitemap: { hostname: 'https://blog.aidream.com.tw' },
   head: [
+    // Google Analytics
     ['script', { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-LQETK33MRL' }],
     ['script', {}, `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-LQETK33MRL');`],
+
+    // Basic SEO
     ['meta', { name: 'referrer', content: 'no-referrer-when-downgrade' }],
+    ['meta', { name: 'author', content: '星智未來' }],
+    ['meta', { name: 'keywords', content: 'AI, 人工智慧, 機器人, LLM, 大型語言模型, AI Agent, 機器學習, 深度學習, 星智未來' }],
+    ['meta', { name: 'robots', content: 'index, follow' }],
+    ['meta', { name: 'googlebot', content: 'index, follow' }],
+
+    // Favicon & Theme
     ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/logo.svg' }],
     ['meta', { name: 'theme-color', content: '#111827' }],
+
+    // Open Graph (default values, will be overridden per page)
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:site_name', content: '星智未來' }],
+    ['meta', { property: 'og:locale', content: 'zh_TW' }],
     ['meta', { property: 'og:title', content: '星智未來' }],
-    ['meta', { property: 'og:description', content: '星智未來｜以 AI 與工程實踐創造價值' }]
+    ['meta', { property: 'og:description', content: '星智未來｜以 AI 與工程實踐創造價值' }],
+    ['meta', { property: 'og:url', content: 'https://blog.aidream.com.tw' }],
+    ['meta', { property: 'og:image', content: 'https://blog.aidream.com.tw/og-image.png' }],
+
+    // Twitter Card
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['meta', { name: 'twitter:title', content: '星智未來' }],
+    ['meta', { name: 'twitter:description', content: '星智未來｜以 AI 與工程實踐創造價值' }],
+    ['meta', { name: 'twitter:image', content: 'https://blog.aidream.com.tw/og-image.png' }],
+
+    // JSON-LD Organization Schema
+    ['script', { type: 'application/ld+json' }, JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      'name': '星智未來',
+      'url': 'https://blog.aidream.com.tw',
+      'logo': 'https://blog.aidream.com.tw/logo.svg',
+      'sameAs': [
+        'https://aidream.com.tw'
+      ],
+      'description': '星智未來專注於 AI 應用工程、雲端與整合服務，以工程實踐創造價值。'
+    })]
   ],
   themeConfig: {
     logo: { src: '/logo.svg', alt: 'InsightCosmos' },
@@ -95,5 +131,63 @@ export default defineConfig({
       copyright: '© ' + new Date().getFullYear() + ' 星智未來'
     },
     search: { provider: 'local' }
+  },
+
+  // Dynamic SEO per page
+  transformPageData(pageData) {
+    const canonicalUrl = `https://blog.aidream.com.tw/${pageData.relativePath}`
+      .replace(/index\.md$/, '')
+      .replace(/\.md$/, '')
+
+    const head: HeadConfig[] = [
+      ['link', { rel: 'canonical', href: canonicalUrl }],
+      ['meta', { property: 'og:url', content: canonicalUrl }]
+    ]
+
+    // Add page-specific title and description if available
+    if (pageData.frontmatter.description) {
+      head.push(['meta', { property: 'og:description', content: pageData.frontmatter.description }])
+      head.push(['meta', { name: 'twitter:description', content: pageData.frontmatter.description }])
+    }
+
+    if (pageData.title) {
+      const fullTitle = `${pageData.title} | 星智未來`
+      head.push(['meta', { property: 'og:title', content: fullTitle }])
+      head.push(['meta', { name: 'twitter:title', content: fullTitle }])
+    }
+
+    // Set og:type to article for blog posts and add Article JSON-LD
+    if (pageData.relativePath.match(/^(ai|robot|project|learning)\//) && !pageData.relativePath.endsWith('index.md')) {
+      head.push(['meta', { property: 'og:type', content: 'article' }])
+
+      // Article JSON-LD schema
+      const articleSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        'headline': pageData.title || '',
+        'description': pageData.frontmatter.description || '',
+        'url': canonicalUrl,
+        'author': {
+          '@type': 'Organization',
+          'name': '星智未來',
+          'url': 'https://blog.aidream.com.tw'
+        },
+        'publisher': {
+          '@type': 'Organization',
+          'name': '星智未來',
+          'logo': {
+            '@type': 'ImageObject',
+            'url': 'https://blog.aidream.com.tw/logo.svg'
+          }
+        },
+        'mainEntityOfPage': {
+          '@type': 'WebPage',
+          '@id': canonicalUrl
+        }
+      }
+      head.push(['script', { type: 'application/ld+json' }, JSON.stringify(articleSchema)])
+    }
+
+    pageData.frontmatter.head = head
   }
 })

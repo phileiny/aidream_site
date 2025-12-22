@@ -1,6 +1,7 @@
 ---
 layout: home
 title: 星智未來
+description: 星智未來專注於 AI 應用工程，分享 AI、機器人、LLM 實戰筆記與專案故事，以工程實踐創造價值。
 hero:
   name: 星智未來
   text: 以 AI 工程，快速把點子變成價值

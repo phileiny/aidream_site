@@ -1,0 +1,10 @@
+# robots.txt for blog.aidream.com.tw
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://blog.aidream.com.tw/sitemap.xml
+
+# Disallow admin/private paths (if any)
+Disallow: /api/
+Disallow: /_*

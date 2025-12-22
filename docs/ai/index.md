@@ -1,3 +1,12 @@
+---
+title: AI 文章
+description: 探索最新 AI 技術與應用，包含 LLM、AI Agent、機器學習等深度文章與實戰分享。
+head:
+  - - meta
+    - name: keywords
+      content: AI, 人工智慧, LLM, 大型語言模型, AI Agent, 機器學習, 深度學習
+---
+
 # AI Articles
 
 Welcome to the AI articles section. Here you will find posts about Artificial Intelligence.

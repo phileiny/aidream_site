@@ -1,3 +1,12 @@
+---
+title: 當 AI 飛向太空：nanoGPT 上軌道背後的科技巨頭競賽
+description: 從 Andrej Karpathy 的一則推文，看見 AI 算力競賽的下一個戰場。Starcloud 在太空中訓練了第一個 LLM，Google、SpaceX 也紛紛加入戰局。
+head:
+  - - meta
+    - name: keywords
+      content: nanoGPT, 太空 AI, Starcloud, SpaceX, Google, AI 算力, 衛星運算
+---
+
 # 當 AI 飛向太空：nanoGPT 上軌道背後的科技巨頭競賽
 
 *從 Andrej Karpathy 的一則推文，看見 AI 算力競賽的下一個戰場*

@@ -1,3 +1,12 @@
+---
+title: 專案文章
+description: 星智未來專案展示與經驗分享，從 AI 應用開發到逆向工程的實戰故事。
+head:
+  - - meta
+    - name: keywords
+      content: 專案, Project, AI 開發, 軟體工程, 逆向工程, 實戰經驗
+---
+
 # Project Articles
 
 Welcome to the Project articles section. Here you will find posts about our Projects.

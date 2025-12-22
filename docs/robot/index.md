@@ -1,3 +1,12 @@
+---
+title: 機器人文章
+description: 機器人技術最新發展，包含 AI 機器人、VLA 模型、自動化應用等深度解析與產業觀察。
+head:
+  - - meta
+    - name: keywords
+      content: 機器人, Robot, AI 機器人, VLA, 自動化, 機器人產業
+---
+
 # Robot Articles
 
 Welcome to the Robot articles section. Here you will find posts about Robotics.

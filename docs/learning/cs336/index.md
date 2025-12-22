@@ -8,7 +8,7 @@
 
 - [課程首頁](https://stanford-cs336.github.io/spring2025/)
 - [GitHub](https://github.com/stanford-cs336)
-- [YouTube Playlist](https://www.youtube.com/playlist?list=PLoROMvodv4rPyR-z_lhHaRl2sSxVCfF0N)
+- [YouTube Playlist](https://www.youtube.com/playlist?list=PLoROMvodv4rOY23Y0BoGoBGgQ1zmU_MT_)
 
 ## 學習進度
 

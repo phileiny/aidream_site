@@ -22,6 +22,7 @@ export default defineConfig({
   themeConfig: {
     logo: { src: '/logo.svg', alt: 'InsightCosmos' },
     nav: [
+      { text: '官網', link: 'https://aidream.com.tw/' },
       { text: 'AI', link: '/ai/' },
       { text: '機器人', link: '/robot/' },
       { text: '專案', link: '/project/' },

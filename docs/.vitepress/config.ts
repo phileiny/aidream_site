@@ -112,7 +112,8 @@ export default defineConfig({
         {
           text: '學習專區',
           items: [
-            { text: 'Index', link: '/learning/' }
+            { text: 'Index', link: '/learning/' },
+            { text: '深度學習核心概念完全指南', link: '/learning/deep_learning_for_beginners' }
           ]
         },
         {

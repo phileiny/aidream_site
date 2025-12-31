@@ -117,6 +117,20 @@ export default defineConfig({
           ]
         },
         {
+          text: '神經網路學習筆記',
+          collapsed: false,
+          items: [
+            { text: '總覽', link: '/learning/micrograd_visualize/' },
+            { text: '系列導覽', link: '/learning/micrograd_visualize/00-overview' },
+            { text: '一個神經元是如何思考的？', link: '/learning/micrograd_visualize/01-multi-input-neuron' },
+            { text: '為什麼激活函數如此重要？', link: '/learning/micrograd_visualize/02-activation-functions' },
+            { text: '梯度下降——順著山坡找谷底', link: '/learning/micrograd_visualize/03-gradient-descent' },
+            { text: '反向傳播——誰該為錯誤負責？', link: '/learning/micrograd_visualize/04-backpropagation' },
+            { text: '計算圖——自動微分', link: '/learning/micrograd_visualize/05-computation-graph' },
+            { text: '實戰——訓練神經網路', link: '/learning/micrograd_visualize/06-mlp-training' }
+          ]
+        },
+        {
           text: 'CS336 學習筆記',
           collapsed: false,
           items: [

@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLP 訓練視覺化 | 星智未來</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      color: white; 
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    
+    .title { text-align: center; margin-bottom: 24px; }
+    .title h1 { font-size: 26px; margin-bottom: 8px; }
+    .title p { color: #94a3b8; font-size: 14px; }
+    
+    .card { 
+      background: rgba(30, 41, 59, 0.9); 
+      border-radius: 16px; 
+      padding: 24px; 
+      margin-bottom: 20px;
+    }
+    .card h2 { 
+      font-size: 17px; margin-bottom: 16px; 
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* 控制面板 */
+    .controls-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-warning:hover { background: #d97706; }
+    .btn-secondary { background: #334155; color: white; }
+    .btn-secondary:hover { background: #475569; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .stats-bar {
+      display: flex;
+      gap: 20px;
+      margin-left: auto;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-item .label { font-size: 10px; color: #64748b; }
+    .stat-item .value { font-size: 18px; font-weight: 700; }
+
+    /* 主視覺區 */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .viz-box {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .viz-box h3 {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    /* 數據集選擇 */
+    .dataset-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .dataset-btn {
+      padding: 8px 16px;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      background: transparent;
+      color: #e2e8f0;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dataset-btn:hover { border-color: #60a5fa; }
+    .dataset-btn.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.2); }
+
+    /* 網路設定 */
+    .network-config {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .config-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .config-item label { color: #94a3b8; }
+    .config-item select, .config-item input {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: white;
+      font-size: 12px;
+    }
+    .config-item input[type="number"] { width: 70px; }
+
+    /* 損失曲線 */
+    .loss-chart {
+      height: 150px;
+      position: relative;
+    }
+
+    /* 網路結構 */
+    .network-viz {
+      overflow-x: auto;
+    }
+
+    /* 決策邊界 */
+    .boundary-canvas {
+      display: block;
+      margin: 0 auto;
+      border-radius: 8px;
+    }
+
+    /* 訓練日誌 */
+    .log-box {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 12px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    .log-entry { margin-bottom: 2px; }
+    .log-entry .epoch { color: #64748b; }
+    .log-entry .loss { color: #f59e0b; }
+    .log-entry .acc { color: #4ade80; }
+
+    /* 進度條 */
+    .progress-bar {
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #10b981);
+      transition: width 0.3s;
+    }
+
+    /* 混淆矩陣 */
+    .confusion-matrix {
+      display: grid;
+      grid-template-columns: auto 1fr 1fr;
+      gap: 4px;
+      font-size: 12px;
+      margin-top: 12px;
+    }
+    .cm-cell {
+      padding: 8px;
+      text-align: center;
+      border-radius: 4px;
+    }
+    .cm-header { color: #64748b; font-weight: 600; }
+    .cm-tp { background: rgba(16, 185, 129, 0.3); color: #4ade80; }
+    .cm-tn { background: rgba(16, 185, 129, 0.3); color: #4ade80; }
+    .cm-fp { background: rgba(239, 68, 68, 0.3); color: #f87171; }
+    .cm-fn { background: rgba(239, 68, 68, 0.3); color: #f87171; }
+
+    .footer { text-align: center; color: #475569; font-size: 12px; margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // ========== micrograd 實現 ==========
+    class Value {
+      constructor(data, _children = [], _op = '') {
+        this.data = data;
+        this.grad = 0;
+        this._backward = () => {};
+        this._prev = _children;
+        this._op = _op;
+      }
+      
+      add(other) {
+        other = other instanceof Value ? other : new Value(other);
+        const out = new Value(this.data + other.data, [this, other], '+');
+        out._backward = () => {
+          this.grad += out.grad;
+          other.grad += out.grad;
+        };
+        return out;
+      }
+      
+      mul(other) {
+        other = other instanceof Value ? other : new Value(other);
+        const out = new Value(this.data * other.data, [this, other], '*');
+        out._backward = () => {
+          this.grad += other.data * out.grad;
+          other.grad += this.data * out.grad;
+        };
+        return out;
+      }
+      
+      pow(n) {
+        const out = new Value(Math.pow(this.data, n), [this], `**${n}`);
+        out._backward = () => {
+          this.grad += n * Math.pow(this.data, n - 1) * out.grad;
+        };
+        return out;
+      }
+      
+      tanh() {
+        const t = Math.tanh(this.data);
+        const out = new Value(t, [this], 'tanh');
+        out._backward = () => {
+          this.grad += (1 - t * t) * out.grad;
+        };
+        return out;
+      }
+      
+      relu() {
+        const out = new Value(this.data > 0 ? this.data : 0, [this], 'relu');
+        out._backward = () => {
+          this.grad += (out.data > 0 ? 1 : 0) * out.grad;
+        };
+        return out;
+      }
+      
+      neg() { return this.mul(-1); }
+      sub(other) { return this.add(other instanceof Value ? other.neg() : -other); }
+      
+      backward() {
+        const topo = [];
+        const visited = new Set();
+        const build = (v) => {
+          if (!visited.has(v)) {
+            visited.add(v);
+            for (const c of v._prev) build(c);
+            topo.push(v);
+          }
+        };
+        build(this);
+        this.grad = 1;
+        for (const v of topo.reverse()) v._backward();
+      }
+    }
+
+    class Neuron {
+      constructor(nin, activation = 'tanh') {
+        this.w = Array.from({ length: nin }, () => new Value(Math.random() * 2 - 1));
+        this.b = new Value(Math.random() * 2 - 1);
+        this.activation = activation;
+      }
+      
+      forward(x) {
+        let act = this.b;
+        for (let i = 0; i < this.w.length; i++) {
+          act = act.add(this.w[i].mul(x[i]));
+        }
+        return this.activation === 'relu' ? act.relu() : act.tanh();
+      }
+      
+      parameters() {
+        return [...this.w, this.b];
+      }
+    }
+
+    class Layer {
+      constructor(nin, nout, activation = 'tanh') {
+        this.neurons = Array.from({ length: nout }, () => new Neuron(nin, activation));
+      }
+      
+      forward(x) {
+        return this.neurons.map(n => n.forward(x));
+      }
+      
+      parameters() {
+        return this.neurons.flatMap(n => n.parameters());
+      }
+    }
+
+    class MLP {
+      constructor(nin, nouts, activation = 'tanh') {
+        const sz = [nin, ...nouts];
+        this.layers = [];
+        for (let i = 0; i < nouts.length; i++) {
+          // 最後一層用 tanh 確保輸出在 -1 到 1
+          const act = i === nouts.length - 1 ? 'tanh' : activation;
+          this.layers.push(new Layer(sz[i], sz[i + 1], act));
+        }
+      }
+      
+      forward(x) {
+        for (const layer of this.layers) {
+          x = layer.forward(x);
+        }
+        return x[0]; // 單輸出
+      }
+      
+      parameters() {
+        return this.layers.flatMap(l => l.parameters());
+      }
+      
+      zeroGrad() {
+        for (const p of this.parameters()) {
+          p.grad = 0;
+        }
+      }
+    }
+
+    // ========== 數據集生成 ==========
+    function generateDataset(type, n = 100) {
+      const data = [];
+      
+      if (type === 'circle') {
+        for (let i = 0; i < n; i++) {
+          const angle = Math.random() * 2 * Math.PI;
+          const r = Math.random() * 0.5 + 0.1;
+          data.push({ x: [r * Math.cos(angle), r * Math.sin(angle)], y: 1 });
+        }
+        for (let i = 0; i < n; i++) {
+          const angle = Math.random() * 2 * Math.PI;
+          const r = Math.random() * 0.3 + 0.7;
+          data.push({ x: [r * Math.cos(angle), r * Math.sin(angle)], y: -1 });
+        }
+      } else if (type === 'xor') {
+        for (let i = 0; i < n / 2; i++) {
+          data.push({ x: [Math.random() * 0.5 - 0.75, Math.random() * 0.5 - 0.75], y: -1 });
+          data.push({ x: [Math.random() * 0.5 + 0.25, Math.random() * 0.5 + 0.25], y: -1 });
+          data.push({ x: [Math.random() * 0.5 - 0.75, Math.random() * 0.5 + 0.25], y: 1 });
+          data.push({ x: [Math.random() * 0.5 + 0.25, Math.random() * 0.5 - 0.75], y: 1 });
+        }
+      } else if (type === 'spiral') {
+        for (let i = 0; i < n; i++) {
+          const r = i / n;
+          const t = 1.75 * i / n * 2 * Math.PI + Math.random() * 0.2;
+          data.push({ x: [r * Math.sin(t), r * Math.cos(t)], y: 1 });
+          data.push({ x: [r * Math.sin(t + Math.PI), r * Math.cos(t + Math.PI)], y: -1 });
+        }
+      } else if (type === 'moons') {
+        for (let i = 0; i < n; i++) {
+          const angle = Math.PI * i / n;
+          data.push({ 
+            x: [Math.cos(angle) + Math.random() * 0.1, Math.sin(angle) + Math.random() * 0.1 - 0.2], 
+            y: 1 
+          });
+          data.push({ 
+            x: [1 - Math.cos(angle) + Math.random() * 0.1, -Math.sin(angle) + Math.random() * 0.1 + 0.2], 
+            y: -1 
+          });
+        }
+      }
+      
+      // Shuffle
+      for (let i = data.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [data[i], data[j]] = [data[j], data[i]];
+      }
+      
+      return data;
+    }
+
+    // ========== 主組件 ==========
+    function MLPTrainer() {
+      const [dataset, setDataset] = useState('circle');
+      const [data, setData] = useState(() => generateDataset('circle'));
+      const [hiddenLayers, setHiddenLayers] = useState('8,8');
+      const [learningRate, setLearningRate] = useState(0.1);
+      const [activation, setActivation] = useState('tanh');
+      
+      const [mlp, setMlp] = useState(null);
+      const [epoch, setEpoch] = useState(0);
+      const [loss, setLoss] = useState(0);
+      const [accuracy, setAccuracy] = useState(0);
+      const [lossHistory, setLossHistory] = useState([]);
+      const [isTraining, setIsTraining] = useState(false);
+      const [logs, setLogs] = useState([]);
+      const [boundaryData, setBoundaryData] = useState([]);
+      
+      const trainIntervalRef = useRef(null);
+      const canvasRef = useRef(null);
+
+      // 初始化網路
+      const initNetwork = useCallback(() => {
+        const layers = hiddenLayers.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0);
+        const newMlp = new MLP(2, [...layers, 1], activation);
+        setMlp(newMlp);
+        setEpoch(0);
+        setLoss(0);
+        setAccuracy(0);
+        setLossHistory([]);
+        setLogs([]);
+        return newMlp;
+      }, [hiddenLayers, activation]);
+
+      // 重新生成數據
+      const regenerateData = useCallback((type) => {
+        setDataset(type);
+        setData(generateDataset(type));
+        initNetwork();
+      }, [initNetwork]);
+
+      // 初始化
+      useEffect(() => {
+        initNetwork();
+      }, []);
+
+      // 單步訓練
+      const trainStep = useCallback((network) => {
+        if (!network) return { loss: 0, acc: 0 };
+        
+        network.zeroGrad();
+        
+        // 前向傳播 + 計算損失
+        let totalLoss = new Value(0);
+        let correct = 0;
+        
+        for (const sample of data) {
+          const x = sample.x.map(v => new Value(v));
+          const pred = network.forward(x);
+          
+          // Hinge loss: max(0, 1 - y * pred)
+          const margin = pred.mul(sample.y);
+          const hingeLoss = new Value(1).sub(margin);
+          const sampleLoss = hingeLoss.data > 0 ? hingeLoss : new Value(0);
+          totalLoss = totalLoss.add(sampleLoss);
+          
+          // 準確率
+          if ((pred.data > 0 && sample.y > 0) || (pred.data <= 0 && sample.y <= 0)) {
+            correct++;
+          }
+        }
+        
+        // 平均損失
+        const avgLoss = totalLoss.mul(1 / data.length);
+        
+        // 反向傳播
+        avgLoss.backward();
+        
+        // 梯度下降
+        for (const p of network.parameters()) {
+          p.data -= learningRate * p.grad;
+        }
+        
+        return {
+          loss: avgLoss.data,
+          acc: correct / data.length
+        };
+      }, [data, learningRate]);
+
+      // 更新決策邊界
+      const updateBoundary = useCallback((network) => {
+        if (!network) return;
+        
+        const gridSize = 40;
+        const newBoundary = [];
+        
+        for (let i = 0; i <= gridSize; i++) {
+          for (let j = 0; j <= gridSize; j++) {
+            const x1 = -1.5 + (3 * i / gridSize);
+            const x2 = -1.5 + (3 * j / gridSize);
+            const x = [new Value(x1), new Value(x2)];
+            const pred = network.forward(x);
+            newBoundary.push({ x1, x2, pred: pred.data });
+          }
+        }
+        
+        setBoundaryData(newBoundary);
+      }, []);
+
+      // 訓練一個 epoch
+      const trainOneEpoch = useCallback(() => {
+        const network = mlp || initNetwork();
+        const result = trainStep(network);
+        
+        setEpoch(e => e + 1);
+        setLoss(result.loss);
+        setAccuracy(result.acc);
+        setLossHistory(h => [...h.slice(-99), result.loss]);
+        setLogs(l => [...l.slice(-50), { epoch: epoch + 1, loss: result.loss, acc: result.acc }]);
+        
+        if ((epoch + 1) % 5 === 0) {
+          updateBoundary(network);
+        }
+        
+        setMlp(network);
+      }, [mlp, initNetwork, trainStep, epoch, updateBoundary]);
+
+      // 連續訓練
+      const startTraining = () => {
+        setIsTraining(true);
+        trainIntervalRef.current = setInterval(() => {
+          trainOneEpoch();
+        }, 50);
+      };
+
+      const stopTraining = () => {
+        setIsTraining(false);
+        if (trainIntervalRef.current) {
+          clearInterval(trainIntervalRef.current);
+        }
+      };
+
+      // 快速訓練
+      const trainFast = () => {
+        let network = mlp || initNetwork();
+        const newLogs = [];
+        const newHistory = [...lossHistory];
+        
+        for (let i = 0; i < 100; i++) {
+          network.zeroGrad();
+          
+          let totalLoss = new Value(0);
+          let correct = 0;
+          
+          for (const sample of data) {
+            const x = sample.x.map(v => new Value(v));
+            const pred = network.forward(x);
+            const margin = pred.mul(sample.y);
+            const hingeLoss = new Value(1).sub(margin);
+            const sampleLoss = hingeLoss.data > 0 ? hingeLoss : new Value(0);
+            totalLoss = totalLoss.add(sampleLoss);
+            if ((pred.data > 0 && sample.y > 0) || (pred.data <= 0 && sample.y <= 0)) correct++;
+          }
+          
+          const avgLoss = totalLoss.mul(1 / data.length);
+          avgLoss.backward();
+          
+          for (const p of network.parameters()) {
+            p.data -= learningRate * p.grad;
+          }
+          
+          if (i % 10 === 0) {
+            newLogs.push({ epoch: epoch + i + 1, loss: avgLoss.data, acc: correct / data.length });
+            newHistory.push(avgLoss.data);
+          }
+        }
+        
+        setMlp(network);
+        setEpoch(e => e + 100);
+        setLoss(newHistory[newHistory.length - 1]);
+        setAccuracy(newLogs[newLogs.length - 1]?.acc || 0);
+        setLossHistory(newHistory.slice(-100));
+        setLogs(l => [...l.slice(-40), ...newLogs].slice(-50));
+        updateBoundary(network);
+      };
+
+      // 重置
+      const reset = () => {
+        stopTraining();
+        const newMlp = initNetwork();
+        setMlp(newMlp);
+        updateBoundary(newMlp);
+      };
+
+      // 初始化邊界
+      useEffect(() => {
+        if (mlp) updateBoundary(mlp);
+      }, [mlp]);
+
+      // 清理
+      useEffect(() => {
+        return () => {
+          if (trainIntervalRef.current) clearInterval(trainIntervalRef.current);
+        };
+      }, []);
+
+      // 繪製損失曲線
+      const renderLossChart = () => {
+        if (lossHistory.length < 2) return null;
+        
+        const maxLoss = Math.max(...lossHistory, 0.1);
+        const points = lossHistory.map((l, i) => {
+          const x = (i / (lossHistory.length - 1)) * 280 + 10;
+          const y = 140 - (l / maxLoss) * 120;
+          return `${x},${y}`;
+        }).join(' ');
+        
+        return (
+          <svg width="100%" height="150" viewBox="0 0 300 150">
+            <rect width="300" height="150" fill="#0f172a" rx="8"/>
+            <line x1="10" y1="140" x2="290" y2="140" stroke="#334155" strokeWidth="1"/>
+            <line x1="10" y1="20" x2="10" y2="140" stroke="#334155" strokeWidth="1"/>
+            <polyline points={points} fill="none" stroke="#f59e0b" strokeWidth="2"/>
+            <text x="150" y="148" textAnchor="middle" fill="#64748b" fontSize="9">Epoch</text>
+            <text x="5" y="80" fill="#64748b" fontSize="9" transform="rotate(-90, 5, 80)">Loss</text>
+          </svg>
+        );
+      };
+
+      // 繪製數據點和決策邊界
+      const renderBoundary = () => {
+        const toCanvas = (v) => ((v + 1.5) / 3) * 250;
+        
+        return (
+          <svg width="250" height="250" viewBox="0 0 250 250">
+            <rect width="250" height="250" fill="#0f172a" rx="8"/>
+            
+            {/* 決策邊界熱力圖 */}
+            {boundaryData.map((d, i) => {
+              const x = toCanvas(d.x1);
+              const y = 250 - toCanvas(d.x2);
+              const t = (d.pred + 1) / 2; // -1~1 -> 0~1
+              const r = Math.round(239 * (1 - t) + 74 * t);
+              const g = Math.round(68 * (1 - t) + 222 * t);
+              const b = Math.round(68 * (1 - t) + 128 * t);
+              return (
+                <rect key={i} x={x - 3} y={y - 3} width="7" height="7"
+                  fill={`rgb(${r},${g},${b})`} opacity="0.6"/>
+              );
+            })}
+            
+            {/* 決策邊界線 (pred ≈ 0) */}
+            {boundaryData.filter(d => Math.abs(d.pred) < 0.1).map((d, i) => {
+              const x = toCanvas(d.x1);
+              const y = 250 - toCanvas(d.x2);
+              return <circle key={`b${i}`} cx={x} cy={y} r="1.5" fill="white" opacity="0.8"/>;
+            })}
+            
+            {/* 數據點 */}
+            {data.map((d, i) => {
+              const x = toCanvas(d.x[0]);
+              const y = 250 - toCanvas(d.x[1]);
+              return (
+                <circle key={i} cx={x} cy={y} r="4"
+                  fill={d.y > 0 ? '#4ade80' : '#ef4444'}
+                  stroke="white" strokeWidth="1"/>
+              );
+            })}
+          </svg>
+        );
+      };
+
+      // 繪製網路結構
+      const renderNetwork = () => {
+        if (!mlp) return null;
+        
+        const layers = [2, ...hiddenLayers.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n)), 1];
+        const maxNeurons = Math.max(...layers);
+        const width = layers.length * 80;
+        const height = Math.max(150, maxNeurons * 30 + 40);
+        
+        return (
+          <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
+            {/* 連線 */}
+            {layers.slice(0, -1).map((n, layerIdx) => {
+              const nextN = layers[layerIdx + 1];
+              const lines = [];
+              for (let i = 0; i < n; i++) {
+                for (let j = 0; j < nextN; j++) {
+                  const x1 = layerIdx * 80 + 50;
+                  const y1 = (height - n * 25) / 2 + i * 25 + 12;
+                  const x2 = (layerIdx + 1) * 80 + 50;
+                  const y2 = (height - nextN * 25) / 2 + j * 25 + 12;
+                  lines.push(
+                    <line key={`${layerIdx}-${i}-${j}`}
+                      x1={x1 + 10} y1={y1} x2={x2 - 10} y2={y2}
+                      stroke="#475569" strokeWidth="1" opacity="0.5"/>
+                  );
+                }
+              }
+              return lines;
+            })}
+            
+            {/* 節點 */}
+            {layers.map((n, layerIdx) => {
+              const nodes = [];
+              for (let i = 0; i < n; i++) {
+                const x = layerIdx * 80 + 50;
+                const y = (height - n * 25) / 2 + i * 25 + 12;
+                const color = layerIdx === 0 ? '#6366f1' 
+                  : layerIdx === layers.length - 1 ? '#f59e0b' 
+                  : '#8b5cf6';
+                nodes.push(
+                  <circle key={`${layerIdx}-${i}`}
+                    cx={x} cy={y} r="10" fill={color} opacity="0.9"/>
+                );
+              }
+              return nodes;
+            })}
+            
+            {/* 層標籤 */}
+            <text x="50" y={height - 5} textAnchor="middle" fill="#64748b" fontSize="9">輸入</text>
+            <text x={width - 30} y={height - 5} textAnchor="middle" fill="#64748b" fontSize="9">輸出</text>
+          </svg>
+        );
+      };
+
+      // 計算混淆矩陣
+      const confusionMatrix = () => {
+        if (!mlp) return { tp: 0, tn: 0, fp: 0, fn: 0 };
+        
+        let tp = 0, tn = 0, fp = 0, fn = 0;
+        for (const sample of data) {
+          const x = sample.x.map(v => new Value(v));
+          const pred = mlp.forward(x).data > 0 ? 1 : -1;
+          const actual = sample.y;
+          
+          if (pred === 1 && actual === 1) tp++;
+          else if (pred === -1 && actual === -1) tn++;
+          else if (pred === 1 && actual === -1) fp++;
+          else fn++;
+        }
+        return { tp, tn, fp, fn };
+      };
+
+      const cm = confusionMatrix();
+
+      return (
+        <div className="container">
+          <div className="title">
+            <h1>🧠 MLP 訓練視覺化</h1>
+            <p>多層感知器訓練二分類器 · 即時觀察決策邊界變化</p>
+          </div>
+
+          {/* 數據集選擇 */}
+          <div className="card">
+            <h2>📊 選擇數據集</h2>
+            <div className="dataset-selector">
+              {['circle', 'xor', 'spiral', 'moons'].map(d => (
+                <button key={d}
+                  className={`dataset-btn ${dataset === d ? 'active' : ''}`}
+                  onClick={() => regenerateData(d)}>
+                  {d === 'circle' && '⭕ 同心圓'}
+                  {d === 'xor' && '❌ XOR'}
+                  {d === 'spiral' && '🌀 螺旋'}
+                  {d === 'moons' && '🌙 雙月'}
+                </button>
+              ))}
+            </div>
+
+            {/* 網路設定 */}
+            <div className="network-config">
+              <div className="config-item">
+                <label>隱藏層：</label>
+                <input type="text" value={hiddenLayers}
+                  onChange={e => setHiddenLayers(e.target.value)}
+                  placeholder="如: 8,8"/>
+              </div>
+              <div className="config-item">
+                <label>學習率：</label>
+                <input type="number" value={learningRate} step="0.01" min="0.01" max="1"
+                  onChange={e => setLearningRate(parseFloat(e.target.value))}/>
+              </div>
+              <div className="config-item">
+                <label>激活函數：</label>
+                <select value={activation} onChange={e => setActivation(e.target.value)}>
+                  <option value="tanh">Tanh</option>
+                  <option value="relu">ReLU</option>
+                </select>
+              </div>
+              <button className="btn btn-secondary" onClick={reset}>🔄 重置網路</button>
+            </div>
+
+            {/* 控制按鈕 */}
+            <div className="controls-bar">
+              <button className="btn btn-primary" onClick={trainOneEpoch} disabled={isTraining}>
+                👉 單步訓練
+              </button>
+              {!isTraining ? (
+                <button className="btn btn-success" onClick={startTraining}>
+                  ▶️ 開始訓練
+                </button>
+              ) : (
+                <button className="btn btn-warning" onClick={stopTraining}>
+                  ⏸️ 暫停
+                </button>
+              )}
+              <button className="btn btn-secondary" onClick={trainFast} disabled={isTraining}>
+                ⚡ 快速訓練 100 次
+              </button>
+              
+              <div className="stats-bar">
+                <div className="stat-item">
+                  <div className="label">Epoch</div>
+                  <div className="value" style={{ color: '#60a5fa' }}>{epoch}</div>
+                </div>
+                <div className="stat-item">
+                  <div className="label">Loss</div>
+                  <div className="value" style={{ color: '#f59e0b' }}>{loss.toFixed(4)}</div>
+                </div>
+                <div className="stat-item">
+                  <div className="label">Accuracy</div>
+                  <div className="value" style={{ color: '#4ade80' }}>{(accuracy * 100).toFixed(1)}%</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${accuracy * 100}%` }}></div>
+            </div>
+          </div>
+
+          {/* 主視覺區 */}
+          <div className="main-grid">
+            {/* 決策邊界 */}
+            <div className="card">
+              <h2>🗺️ 決策邊界</h2>
+              <div className="viz-box">
+                {renderBoundary()}
+              </div>
+              <div style={{ marginTop: '12px', fontSize: '12px', color: '#94a3b8', textAlign: 'center' }}>
+                <span style={{ color: '#4ade80' }}>● 類別 +1</span>
+                <span style={{ margin: '0 12px' }}>|</span>
+                <span style={{ color: '#ef4444' }}>● 類別 -1</span>
+                <span style={{ margin: '0 12px' }}>|</span>
+                <span style={{ color: 'white' }}>● 決策邊界</span>
+              </div>
+            </div>
+
+            {/* 損失曲線 + 網路結構 */}
+            <div className="card">
+              <h2>📈 訓練過程</h2>
+              <div className="viz-box">
+                <h3>損失曲線</h3>
+                {renderLossChart()}
+              </div>
+              <div className="viz-box" style={{ marginTop: '16px' }}>
+                <h3>網路結構 [2 → {hiddenLayers} → 1]</h3>
+                <div className="network-viz">
+                  {renderNetwork()}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 詳細資訊 */}
+          <div className="main-grid">
+            {/* 混淆矩陣 */}
+            <div className="card">
+              <h2>📊 混淆矩陣</h2>
+              <div className="confusion-matrix">
+                <div className="cm-cell"></div>
+                <div className="cm-cell cm-header">預測 +1</div>
+                <div className="cm-cell cm-header">預測 -1</div>
+                <div className="cm-cell cm-header">實際 +1</div>
+                <div className="cm-cell cm-tp">{cm.tp} (TP)</div>
+                <div className="cm-cell cm-fn">{cm.fn} (FN)</div>
+                <div className="cm-cell cm-header">實際 -1</div>
+                <div className="cm-cell cm-fp">{cm.fp} (FP)</div>
+                <div className="cm-cell cm-tn">{cm.tn} (TN)</div>
+              </div>
+              <div style={{ marginTop: '12px', fontSize: '12px', color: '#94a3b8' }}>
+                <p>精確率 (Precision): {((cm.tp / (cm.tp + cm.fp)) * 100 || 0).toFixed(1)}%</p>
+                <p>召回率 (Recall): {((cm.tp / (cm.tp + cm.fn)) * 100 || 0).toFixed(1)}%</p>
+              </div>
+            </div>
+
+            {/* 訓練日誌 */}
+            <div className="card">
+              <h2>📝 訓練日誌</h2>
+              <div className="log-box">
+                {logs.slice(-20).map((log, i) => (
+                  <div key={i} className="log-entry">
+                    <span className="epoch">[Epoch {log.epoch}]</span>
+                    {' '}Loss: <span className="loss">{log.loss.toFixed(4)}</span>
+                    {' '}Acc: <span className="acc">{(log.acc * 100).toFixed(1)}%</span>
+                  </div>
+                ))}
+                {logs.length === 0 && <div style={{ color: '#64748b' }}>點擊「單步訓練」或「開始訓練」...</div>}
+              </div>
+            </div>
+          </div>
+
+          {/* 說明 */}
+          <div className="card">
+            <h2>💡 如何使用</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+              <div style={{ background: '#0f172a', padding: '14px', borderRadius: '8px' }}>
+                <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#60a5fa' }}>1. 選擇數據集</h4>
+                <p style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  不同數據集有不同難度。XOR 和 Spiral 需要更深的網路。
+                </p>
+              </div>
+              <div style={{ background: '#0f172a', padding: '14px', borderRadius: '8px' }}>
+                <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#60a5fa' }}>2. 調整網路</h4>
+                <p style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  隱藏層格式如「8,8」表示兩層各 8 個神經元。更複雜的問題需要更多神經元。
+                </p>
+              </div>
+              <div style={{ background: '#0f172a', padding: '14px', borderRadius: '8px' }}>
+                <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#60a5fa' }}>3. 觀察訓練</h4>
+                <p style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  看決策邊界如何逐漸擬合數據，損失曲線下降，準確率上升。
+                </p>
+              </div>
+              <div style={{ background: '#0f172a', padding: '14px', borderRadius: '8px' }}>
+                <h4 style={{ fontSize: '13px', marginBottom: '8px', color: '#60a5fa' }}>4. 實驗</h4>
+                <p style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  試試不同學習率、網路結構，看對訓練速度和效果的影響。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* micrograd 代碼 */}
+          <div className="card">
+            <h2>💻 這就是 micrograd！</h2>
+            <div style={{ background: '#0f172a', borderRadius: '10px', padding: '16px', fontFamily: 'monospace', fontSize: '11px', lineHeight: 1.7, overflowX: 'auto' }}>
+              <span style={{ color: '#6b7280' }}># 建立網路</span><br/>
+              model = MLP(<span style={{ color: '#4ade80' }}>2</span>, [<span style={{ color: '#4ade80' }}>8, 8, 1</span>]) <span style={{ color: '#6b7280' }}># 2 輸入 → 8 → 8 → 1 輸出</span><br/><br/>
+              
+              <span style={{ color: '#6b7280' }}># 訓練迴圈</span><br/>
+              <span style={{ color: '#c084fc' }}>for</span> epoch <span style={{ color: '#c084fc' }}>in</span> range(<span style={{ color: '#4ade80' }}>100</span>):<br/>
+              &nbsp;&nbsp;<span style={{ color: '#6b7280' }}># 前向傳播 + 損失</span><br/>
+              &nbsp;&nbsp;loss = <span style={{ color: '#fbbf24' }}>sum</span>((model(x) - y)**<span style={{ color: '#4ade80' }}>2</span> <span style={{ color: '#c084fc' }}>for</span> x, y <span style={{ color: '#c084fc' }}>in</span> data)<br/><br/>
+              
+              &nbsp;&nbsp;<span style={{ color: '#6b7280' }}># 反向傳播</span><br/>
+              &nbsp;&nbsp;model.zero_grad()<br/>
+              &nbsp;&nbsp;loss.backward() <span style={{ color: '#6b7280' }}># 自動計算所有梯度！</span><br/><br/>
+              
+              &nbsp;&nbsp;<span style={{ color: '#6b7280' }}># 梯度下降</span><br/>
+              &nbsp;&nbsp;<span style={{ color: '#c084fc' }}>for</span> p <span style={{ color: '#c084fc' }}>in</span> model.parameters():<br/>
+              &nbsp;&nbsp;&nbsp;&nbsp;p.data -= <span style={{ color: '#4ade80' }}>0.1</span> * p.grad<br/><br/>
+              
+              <span style={{ color: '#4ade80' }}># 就這麼簡單！micrograd 處理了所有自動微分的細節。</span>
+            </div>
+          </div>
+
+          <div className="footer">星智未來 · ML 數學視覺化 · MLP 訓練器</div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<MLPTrainer />);
+  </script>
+</body>
+</html>

@@ -8,6 +8,10 @@
 
 寫給完全小白的深度學習入門 — 不需要數學背景，也能理解 AI 如何學習。
 
+### [神經網路學習筆記：從零理解神經網路](./micrograd_visualize/)
+
+用互動視覺化工具，讓你「玩」懂深度學習。從神經元、激活函數、梯度下降到反向傳播，每篇文章都配有互動工具。
+
 ### [Stanford CS336：Language Modeling from Scratch](./cs336/)
 
 從零開始實作語言模型，涵蓋 Tokenizer、Transformer、分散式訓練到 Alignment。這是一個預計 17 週的深度學習旅程。

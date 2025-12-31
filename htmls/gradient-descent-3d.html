@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>梯度下降 3D 視覺化 | 星智未來</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #111827; 
+      color: white; 
+      min-height: 100vh;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    .title { text-align: center; margin-bottom: 24px; }
+    .title h1 { font-size: 28px; margin-bottom: 4px; }
+    .title p { color: #9ca3af; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 1024px) { .grid { grid-template-columns: 1fr 2fr; } }
+    .panel { background: #1f2937; border-radius: 12px; padding: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+    .form-group select, .form-group input[type="range"] { width: 100%; }
+    select { 
+      background: #374151; border: none; border-radius: 8px; 
+      padding: 10px; color: white; font-size: 14px; cursor: pointer;
+    }
+    input[type="range"] { 
+      -webkit-appearance: none; height: 8px; background: #374151; 
+      border-radius: 4px; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px;
+      background: #3b82f6; border-radius: 50%; cursor: pointer;
+    }
+    .formula { font-family: monospace; color: #60a5fa; font-size: 13px; margin-top: 4px; }
+    .desc { color: #6b7280; font-size: 12px; margin-top: 4px; }
+    .range-labels { display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-top: 4px; }
+    .value { color: #60a5fa; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .buttons { display: flex; gap: 8px; margin-top: 8px; }
+    .btn { 
+      flex: 1; padding: 10px; border: none; border-radius: 8px; 
+      font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: #4b5563; color: white; }
+    .btn-secondary:hover { background: #374151; }
+    .status { 
+      background: rgba(55, 65, 81, 0.5); border-radius: 8px; 
+      padding: 12px; margin-top: 16px; font-size: 13px;
+    }
+    .status-title { color: #fbbf24; font-weight: 500; margin-bottom: 8px; }
+    .status-row { margin-bottom: 4px; }
+    .status-label { color: #9ca3af; }
+    .status-value { margin-left: 8px; }
+    .status-value.loss { color: #fbbf24; }
+    .status-value.grad { color: #4ade80; }
+    .viz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .viz-header span { font-size: 14px; }
+    .viz-header .hint { color: #6b7280; font-size: 12px; }
+    svg { background: #030712; border-radius: 8px; display: block; }
+    .progress { margin-top: 12px; }
+    .progress-labels { display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-top: 4px; }
+    .math { margin-top: 24px; }
+    .math h3 { font-size: 16px; margin-bottom: 12px; }
+    .math-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 768px) { .math-grid { grid-template-columns: 1fr 1fr; } }
+    .math-formula { 
+      background: #030712; border-radius: 8px; padding: 12px; 
+      font-family: monospace; text-align: center; font-size: 18px; margin-bottom: 8px;
+    }
+    .math-list { font-size: 12px; color: #9ca3af; }
+    .math-list li { margin-bottom: 4px; }
+    .math-list span { color: white; }
+    .intuition { font-size: 14px; color: #d1d5db; }
+    .intuition p { margin-bottom: 8px; }
+    .intuition ol { font-size: 12px; color: #9ca3af; padding-left: 20px; }
+    .intuition ol li { margin-bottom: 4px; }
+    .footer { text-align: center; color: #4b5563; font-size: 12px; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    function GradientDescent() {
+      const [functionType, setFunctionType] = useState('bowl');
+      const [learningRate, setLearningRate] = useState(0.1);
+      const [startX, setStartX] = useState(2);
+      const [startY, setStartY] = useState(2);
+      const [path, setPath] = useState([]);
+      const [currentStep, setCurrentStep] = useState(0);
+      const [isRunning, setIsRunning] = useState(false);
+      const [rotationX, setRotationX] = useState(25);
+      const [rotationZ, setRotationZ] = useState(45);
+      const [isDragging, setIsDragging] = useState(false);
+      const dragStartRef = useRef({ x: 0, y: 0 });
+      const timerRef = useRef(null);
+
+      const functions = {
+        bowl: {
+          name: '碗型 (Convex)',
+          formula: 'f(x,y) = x² + y²',
+          f: (x, y) => x * x + y * y,
+          gradX: (x, y) => 2 * x,
+          gradY: (x, y) => 2 * y,
+          desc: '最簡單的凸函數，只有一個全局最小值。'
+        },
+        saddle: {
+          name: '馬鞍型 (Saddle)',
+          formula: 'f(x,y) = x² - y²',
+          f: (x, y) => x * x - y * y,
+          gradX: (x, y) => 2 * x,
+          gradY: (x, y) => -2 * y,
+          desc: '鞍點問題：某些方向上升，某些方向下降。'
+        },
+        multimodal: {
+          name: '多峰型 (Local Minima)',
+          formula: 'f(x,y) = sin(x) + sin(y) + 0.1(x² + y²)',
+          f: (x, y) => Math.sin(x) + Math.sin(y) + 0.1 * (x * x + y * y),
+          gradX: (x, y) => Math.cos(x) + 0.2 * x,
+          gradY: (x, y) => Math.cos(y) + 0.2 * y,
+          desc: '多個局部最小值，起始點影響收斂結果。'
+        },
+        rosenbrock: {
+          name: 'Rosenbrock',
+          formula: 'f(x,y) = (1-x)² + 100(y-x²)²',
+          f: (x, y) => Math.pow(1 - x, 2) + 100 * Math.pow(y - x * x, 2),
+          gradX: (x, y) => -2 * (1 - x) - 400 * x * (y - x * x),
+          gradY: (x, y) => 200 * (y - x * x),
+          desc: '經典優化測試，最小值在 (1,1)，很難收斂。'
+        }
+      };
+
+      const func = functions[functionType];
+
+      // 計算路徑
+      const computePath = () => {
+        const newPath = [];
+        let x = startX, y = startY;
+        for (let i = 0; i < 100; i++) {
+          const z = func.f(x, y);
+          const gx = func.gradX(x, y);
+          const gy = func.gradY(x, y);
+          newPath.push({ x, y, z, gx, gy });
+          
+          const nx = x - learningRate * gx;
+          const ny = y - learningRate * gy;
+          
+          if (Math.abs(nx - x) < 0.0001 && Math.abs(ny - y) < 0.0001) break;
+          
+          x = Math.max(-3, Math.min(3, nx));
+          y = Math.max(-3, Math.min(3, ny));
+        }
+        return newPath;
+      };
+
+      // 初始化路徑
+      useEffect(() => {
+        const newPath = computePath();
+        setPath(newPath);
+        setCurrentStep(0);
+        setIsRunning(false);
+        if (timerRef.current) clearInterval(timerRef.current);
+      }, [functionType, learningRate, startX, startY]);
+
+      // 動畫
+      useEffect(() => {
+        if (isRunning) {
+          timerRef.current = setInterval(() => {
+            setCurrentStep(prev => {
+              if (prev >= path.length - 1) {
+                setIsRunning(false);
+                clearInterval(timerRef.current);
+                return prev;
+              }
+              return prev + 1;
+            });
+          }, 120);
+        }
+        return () => {
+          if (timerRef.current) clearInterval(timerRef.current);
+        };
+      }, [isRunning, path.length]);
+
+      const handleStart = () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+        const newPath = computePath();
+        setPath(newPath);
+        setCurrentStep(0);
+        setIsRunning(true);
+      };
+
+      const handleReset = () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+        setIsRunning(false);
+        setCurrentStep(0);
+      };
+
+      // 3D 投影
+      const project = (x, y, z) => {
+        const s = 40;
+        const rx = rotationX * Math.PI / 180;
+        const rz = rotationZ * Math.PI / 180;
+        const x1 = x * Math.cos(rz) - y * Math.sin(rz);
+        const y1 = x * Math.sin(rz) + y * Math.cos(rz);
+        const y2 = y1 * Math.cos(rx) - z * Math.sin(rx);
+        const z2 = y1 * Math.sin(rx) + z * Math.cos(rx);
+        return { x: 200 + x1 * s, y: 200 - z2 * s * 0.5 - y2 * s * 0.3 };
+      };
+
+      // 曲面
+      const surface = [];
+      for (let i = -3; i <= 3; i += 0.5) {
+        const row = [];
+        for (let j = -3; j <= 3; j += 0.5) {
+          let z = func.f(i, j);
+          z = Math.max(-3, Math.min(5, z)) * 0.3;
+          row.push({ x: i, y: j, z });
+        }
+        surface.push(row);
+      }
+
+      const getColor = (z) => {
+        const t = Math.max(0, Math.min(1, (z + 1) / 4));
+        return `rgb(${Math.round(66 + t * 150)},${Math.round(133 - t * 80)},${Math.round(244 - t * 150)})`;
+      };
+
+      const visiblePath = path.slice(0, currentStep + 1);
+      const cur = path[currentStep];
+
+      // 拖曳
+      const onMouseDown = (e) => {
+        setIsDragging(true);
+        dragStartRef.current = { x: e.clientX, y: e.clientY };
+      };
+      const onMouseMove = (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - dragStartRef.current.x;
+        const dy = e.clientY - dragStartRef.current.y;
+        setRotationZ(r => r + dx * 0.5);
+        setRotationX(r => Math.max(0, Math.min(90, r + dy * 0.5)));
+        dragStartRef.current = { x: e.clientX, y: e.clientY };
+      };
+      const onMouseUp = () => setIsDragging(false);
+
+      return (
+        <div className="container">
+          <div className="title">
+            <h1>梯度下降 3D 視覺化</h1>
+            <p>Gradient Descent Visualization</p>
+          </div>
+
+          <div className="grid">
+            <div className="panel">
+              <div className="form-group">
+                <label>損失函數</label>
+                <select value={functionType} onChange={e => setFunctionType(e.target.value)}>
+                  {Object.entries(functions).map(([k, v]) => (
+                    <option key={k} value={k}>{v.name}</option>
+                  ))}
+                </select>
+                <div className="formula">{func.formula}</div>
+                <div className="desc">{func.desc}</div>
+              </div>
+
+              <div className="form-group">
+                <label>學習率: <span className="value">{learningRate.toFixed(2)}</span></label>
+                <input type="range" min="0.01" max="0.5" step="0.01" value={learningRate}
+                  onChange={e => setLearningRate(parseFloat(e.target.value))} />
+                <div className="range-labels"><span>0.01 慢</span><span>0.5 快</span></div>
+              </div>
+
+              <div className="row">
+                <div className="form-group">
+                  <label>起點 X: <span className="value">{startX.toFixed(1)}</span></label>
+                  <input type="range" min="-2.5" max="2.5" step="0.1" value={startX}
+                    onChange={e => setStartX(parseFloat(e.target.value))} />
+                </div>
+                <div className="form-group">
+                  <label>起點 Y: <span className="value">{startY.toFixed(1)}</span></label>
+                  <input type="range" min="-2.5" max="2.5" step="0.1" value={startY}
+                    onChange={e => setStartY(parseFloat(e.target.value))} />
+                </div>
+              </div>
+
+              <div className="buttons">
+                <button className="btn btn-primary" onClick={handleStart}>
+                  {isRunning ? '⏸ 運行中' : '▶ 開始'}
+                </button>
+                <button className="btn btn-secondary" onClick={handleReset}>↺ 重置</button>
+              </div>
+
+              {cur && (
+                <div className="status">
+                  <div className="status-title">Step {currentStep} / {path.length - 1}</div>
+                  <div className="status-row">
+                    <span className="status-label">位置:</span>
+                    <span className="status-value">({cur.x.toFixed(3)}, {cur.y.toFixed(3)})</span>
+                  </div>
+                  <div className="status-row">
+                    <span className="status-label">損失:</span>
+                    <span className="status-value loss">{cur.z.toFixed(4)}</span>
+                  </div>
+                  <div className="status-row">
+                    <span className="status-label">梯度:</span>
+                    <span className="status-value grad">({cur.gx.toFixed(2)}, {cur.gy.toFixed(2)})</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="panel">
+              <div className="viz-header">
+                <span>3D 曲面</span>
+                <span className="hint">拖曳旋轉視角</span>
+              </div>
+
+              <svg width="100%" height="350" viewBox="0 0 400 400"
+                onMouseDown={onMouseDown} onMouseMove={onMouseMove}
+                onMouseUp={onMouseUp} onMouseLeave={onMouseUp}
+                style={{ cursor: isDragging ? 'grabbing' : 'grab' }}>
+                
+                {/* 曲面 */}
+                {surface.map((row, i) => row.map((p, j) => {
+                  if (i >= surface.length - 1 || j >= row.length - 1) return null;
+                  const p1 = project(p.x, p.y, p.z);
+                  const p2 = project(surface[i+1][j].x, surface[i+1][j].y, surface[i+1][j].z);
+                  const p3 = project(surface[i+1][j+1].x, surface[i+1][j+1].y, surface[i+1][j+1].z);
+                  const p4 = project(row[j+1].x, row[j+1].y, row[j+1].z);
+                  const avgZ = (p.z + surface[i+1][j].z + surface[i+1][j+1].z + row[j+1].z) / 4;
+                  return (
+                    <polygon key={`${i}-${j}`}
+                      points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y} ${p4.x},${p4.y}`}
+                      fill={getColor(avgZ)} fillOpacity="0.7"
+                      stroke={getColor(avgZ)} strokeWidth="0.5" />
+                  );
+                }))}
+
+                {/* 路徑 */}
+                {visiblePath.length > 1 && (
+                  <path d={visiblePath.map((p, i) => {
+                    const pt = project(p.x, p.y, p.z * 0.3 + 0.2);
+                    return `${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`;
+                  }).join(' ')} fill="none" stroke="#ef4444" strokeWidth="3" />
+                )}
+
+                {/* 點 */}
+                {visiblePath.map((p, i) => {
+                  const pt = project(p.x, p.y, p.z * 0.3 + 0.2);
+                  const isCur = i === currentStep;
+                  return (
+                    <circle key={i} cx={pt.x} cy={pt.y} r={isCur ? 8 : 4}
+                      fill={isCur ? "#fbbf24" : "#ef4444"} stroke="#fff" strokeWidth={isCur ? 2 : 1} />
+                  );
+                })}
+
+                {/* 座標軸 */}
+                {(() => {
+                  const o = project(0, 0, 0);
+                  const xe = project(3, 0, 0);
+                  const ye = project(0, 3, 0);
+                  const ze = project(0, 0, 1.5);
+                  return (
+                    <g opacity="0.6">
+                      <line x1={o.x} y1={o.y} x2={xe.x} y2={xe.y} stroke="#ef4444" strokeWidth="1.5" />
+                      <text x={xe.x + 5} y={xe.y} fill="#ef4444" fontSize="11">X</text>
+                      <line x1={o.x} y1={o.y} x2={ye.x} y2={ye.y} stroke="#22c55e" strokeWidth="1.5" />
+                      <text x={ye.x + 5} y={ye.y} fill="#22c55e" fontSize="11">Y</text>
+                      <line x1={o.x} y1={o.y} x2={ze.x} y2={ze.y} stroke="#3b82f6" strokeWidth="1.5" />
+                      <text x={ze.x + 5} y={ze.y} fill="#3b82f6" fontSize="11">Loss</text>
+                    </g>
+                  );
+                })()}
+              </svg>
+
+              <div className="progress">
+                <input type="range" min="0" max={Math.max(0, path.length - 1)} value={currentStep}
+                  onChange={e => { setIsRunning(false); setCurrentStep(parseInt(e.target.value)); }} />
+                <div className="progress-labels">
+                  <span>Step 0</span>
+                  <span>Step {path.length - 1}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="panel math">
+            <h3>數學原理</h3>
+            <div className="math-grid">
+              <div>
+                <div className="math-formula">θ<sub>t+1</sub> = θ<sub>t</sub> - η · ∇f(θ<sub>t</sub>)</div>
+                <ul className="math-list">
+                  <li>• <span>θ</span> = 參數 (x, y)</li>
+                  <li>• <span>η</span> = 學習率</li>
+                  <li>• <span>∇f</span> = 梯度向量</li>
+                </ul>
+              </div>
+              <div className="intuition">
+                <p>想像你蒙著眼在山上，想走到最低點：</p>
+                <ol>
+                  <li>用腳感受坡度（計算梯度）</li>
+                  <li>往下坡方向走一步（負梯度）</li>
+                  <li>步伐大小 = 學習率</li>
+                  <li>重複直到平地</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <div className="footer">星智未來 · ML 數學視覺化</div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<GradientDescent />);
+  </script>
+</body>
+</html>

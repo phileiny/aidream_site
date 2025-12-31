@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>計算圖與自動微分 | 星智未來</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1a1a2e 100%);
+      color: white; 
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+    
+    .title { text-align: center; margin-bottom: 24px; }
+    .title h1 { font-size: 26px; margin-bottom: 8px; }
+    .title p { color: #94a3b8; font-size: 14px; }
+    
+    .card { 
+      background: rgba(30, 41, 59, 0.9); 
+      border-radius: 16px; 
+      padding: 24px; 
+      margin-bottom: 20px;
+    }
+    .card h2 { 
+      font-size: 17px; margin-bottom: 16px; 
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* 控制區 */
+    .controls-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-secondary { background: #334155; color: white; }
+    .btn-secondary:hover { background: #475569; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .phase-badge {
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .phase-idle { background: #334155; }
+    .phase-forward { background: #3b82f6; }
+    .phase-backward { background: #ef4444; }
+
+    /* 計算圖 SVG */
+    .graph-container {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+    }
+    .graph-svg {
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* 滑桿 */
+    .sliders {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .slider-group label {
+      display: block;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+    .slider-group .value {
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 6px;
+      background: #334155;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      background: #3b82f6;
+      border-radius: 50%;
+    }
+
+    /* 程式碼區 */
+    .code-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    @media (max-width: 768px) {
+      .code-section { grid-template-columns: 1fr; }
+    }
+    .code-block {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 16px;
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .code-block h3 {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      font-family: -apple-system, sans-serif;
+    }
+    .code-line { margin-bottom: 2px; }
+    .code-comment { color: #6b7280; }
+    .code-keyword { color: #c084fc; }
+    .code-func { color: #60a5fa; }
+    .code-num { color: #4ade80; }
+    .code-var { color: #fbbf24; }
+    .code-op { color: #f87171; }
+    .code-highlight { 
+      background: rgba(59, 130, 246, 0.2); 
+      padding: 2px 4px; 
+      border-radius: 3px;
+    }
+
+    /* 說明卡片 */
+    .info-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .info-card {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 14px;
+      border-left: 3px solid #475569;
+    }
+    .info-card.active { border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+    .info-card h4 { font-size: 13px; margin-bottom: 6px; }
+    .info-card p { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+
+    /* 節點詳情 */
+    .node-detail {
+      background: #1e293b;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .node-detail h3 {
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .detail-item {
+      background: #0f172a;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .detail-item .label { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+    .detail-item .value { font-size: 16px; font-weight: 600; }
+    .detail-item .formula { font-size: 11px; color: #94a3b8; margin-top: 4px; font-family: monospace; }
+
+    .footer { text-align: center; color: #475569; font-size: 12px; margin-top: 30px; }
+
+    /* 圖例 */
+    .legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      font-size: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // ========== micrograd 簡化版 ==========
+    class Value {
+      constructor(data, _children = [], _op = '', label = '') {
+        this.data = data;
+        this.grad = 0;
+        this._backward = () => {};
+        this._prev = _children;
+        this._op = _op;
+        this.label = label;
+      }
+
+      add(other) {
+        const out = new Value(this.data + other.data, [this, other], '+');
+        out._backward = () => {
+          this.grad += out.grad;
+          other.grad += out.grad;
+        };
+        return out;
+      }
+
+      mul(other) {
+        const out = new Value(this.data * other.data, [this, other], '*');
+        out._backward = () => {
+          this.grad += other.data * out.grad;
+          other.grad += this.data * out.grad;
+        };
+        return out;
+      }
+
+      tanh() {
+        const t = Math.tanh(this.data);
+        const out = new Value(t, [this], 'tanh');
+        out._backward = () => {
+          this.grad += (1 - t * t) * out.grad;
+        };
+        return out;
+      }
+
+      relu() {
+        const out = new Value(this.data > 0 ? this.data : 0, [this], 'ReLU');
+        out._backward = () => {
+          this.grad += (out.data > 0 ? 1 : 0) * out.grad;
+        };
+        return out;
+      }
+
+      backward() {
+        const topo = [];
+        const visited = new Set();
+        const buildTopo = (v) => {
+          if (!visited.has(v)) {
+            visited.add(v);
+            for (const child of v._prev) {
+              buildTopo(child);
+            }
+            topo.push(v);
+          }
+        };
+        buildTopo(this);
+        
+        this.grad = 1;
+        for (const v of topo.reverse()) {
+          v._backward();
+        }
+        return topo.reverse(); // 返回拓撲順序供動畫用
+      }
+    }
+
+    function ComputationGraph() {
+      // 輸入值
+      const [x1Val, setX1Val] = useState(2);
+      const [x2Val, setX2Val] = useState(0);
+      const [w1Val, setW1Val] = useState(-3);
+      const [w2Val, setW2Val] = useState(1);
+      const [bVal, setBVal] = useState(6.88);
+
+      // 動畫狀態
+      const [phase, setPhase] = useState('idle'); // idle, forward, backward
+      const [step, setStep] = useState(0);
+      const [highlightNode, setHighlightNode] = useState(null);
+      const [topoOrder, setTopoOrder] = useState([]);
+      
+      const timerRef = useRef(null);
+
+      // 建立計算圖
+      const buildGraph = () => {
+        const x1 = new Value(x1Val, [], '', 'x1');
+        const x2 = new Value(x2Val, [], '', 'x2');
+        const w1 = new Value(w1Val, [], '', 'w1');
+        const w2 = new Value(w2Val, [], '', 'w2');
+        const b = new Value(bVal, [], '', 'b');
+
+        const x1w1 = x1.mul(w1);
+        x1w1.label = 'x1*w1';
+        
+        const x2w2 = x2.mul(w2);
+        x2w2.label = 'x2*w2';
+        
+        const x1w1_x2w2 = x1w1.add(x2w2);
+        x1w1_x2w2.label = 'sum1';
+        
+        const n = x1w1_x2w2.add(b);
+        n.label = 'n';
+        
+        const o = n.tanh();
+        o.label = 'o';
+
+        return { x1, x2, w1, w2, b, x1w1, x2w2, x1w1_x2w2, n, o };
+      };
+
+      const [graph, setGraph] = useState(buildGraph());
+
+      // 重新建立圖
+      useEffect(() => {
+        setGraph(buildGraph());
+        setPhase('idle');
+        setStep(0);
+        setHighlightNode(null);
+      }, [x1Val, x2Val, w1Val, w2Val, bVal]);
+
+      // 節點列表（用於繪圖）
+      const nodes = [
+        { id: 'x1', x: 50, y: 60, type: 'input', label: 'x₁', value: graph.x1 },
+        { id: 'w1', x: 50, y: 140, type: 'weight', label: 'w₁', value: graph.w1 },
+        { id: 'x2', x: 50, y: 260, type: 'input', label: 'x₂', value: graph.x2 },
+        { id: 'w2', x: 50, y: 340, type: 'weight', label: 'w₂', value: graph.w2 },
+        { id: 'x1w1', x: 200, y: 100, type: 'op', label: '×', value: graph.x1w1, op: '*' },
+        { id: 'x2w2', x: 200, y: 300, type: 'op', label: '×', value: graph.x2w2, op: '*' },
+        { id: 'sum1', x: 350, y: 200, type: 'op', label: '+', value: graph.x1w1_x2w2, op: '+' },
+        { id: 'b', x: 350, y: 320, type: 'weight', label: 'b', value: graph.b },
+        { id: 'n', x: 500, y: 200, type: 'op', label: '+', value: graph.n, op: '+' },
+        { id: 'o', x: 650, y: 200, type: 'activation', label: 'tanh', value: graph.o, op: 'tanh' },
+      ];
+
+      const edges = [
+        { from: 'x1', to: 'x1w1' },
+        { from: 'w1', to: 'x1w1' },
+        { from: 'x2', to: 'x2w2' },
+        { from: 'w2', to: 'x2w2' },
+        { from: 'x1w1', to: 'sum1' },
+        { from: 'x2w2', to: 'sum1' },
+        { from: 'sum1', to: 'n' },
+        { from: 'b', to: 'n' },
+        { from: 'n', to: 'o' },
+      ];
+
+      // 前向傳播順序
+      const forwardOrder = ['x1', 'w1', 'x2', 'w2', 'b', 'x1w1', 'x2w2', 'sum1', 'n', 'o'];
+      // 反向傳播順序
+      const backwardOrder = ['o', 'n', 'sum1', 'b', 'x1w1', 'x2w2', 'x1', 'w1', 'x2', 'w2'];
+
+      // 執行前向傳播動畫
+      const runForward = () => {
+        setPhase('forward');
+        setStep(0);
+        let currentStep = 0;
+        
+        const animate = () => {
+          if (currentStep < forwardOrder.length) {
+            setHighlightNode(forwardOrder[currentStep]);
+            setStep(currentStep);
+            currentStep++;
+            timerRef.current = setTimeout(animate, 600);
+          } else {
+            setPhase('idle');
+            setHighlightNode(null);
+          }
+        };
+        animate();
+      };
+
+      // 執行反向傳播
+      const runBackward = () => {
+        // 先執行 backward
+        const newGraph = buildGraph();
+        newGraph.o.backward();
+        setGraph(newGraph);
+        
+        setPhase('backward');
+        setStep(0);
+        let currentStep = 0;
+        
+        const animate = () => {
+          if (currentStep < backwardOrder.length) {
+            setHighlightNode(backwardOrder[currentStep]);
+            setStep(currentStep);
+            currentStep++;
+            timerRef.current = setTimeout(animate, 600);
+          } else {
+            setPhase('idle');
+            setHighlightNode(null);
+          }
+        };
+        animate();
+      };
+
+      const handleReset = () => {
+        if (timerRef.current) clearTimeout(timerRef.current);
+        setGraph(buildGraph());
+        setPhase('idle');
+        setStep(0);
+        setHighlightNode(null);
+      };
+
+      // 獲取節點顏色
+      const getNodeColor = (node) => {
+        if (highlightNode === node.id) {
+          return phase === 'forward' ? '#3b82f6' : '#ef4444';
+        }
+        switch (node.type) {
+          case 'input': return '#6366f1';
+          case 'weight': return '#8b5cf6';
+          case 'op': return '#64748b';
+          case 'activation': return '#f59e0b';
+          default: return '#64748b';
+        }
+      };
+
+      // 獲取邊的顏色
+      const getEdgeColor = (edge) => {
+        if (phase === 'forward' && highlightNode) {
+          if (edge.to === highlightNode) return '#3b82f6';
+        }
+        if (phase === 'backward' && highlightNode) {
+          if (edge.from === highlightNode) return '#ef4444';
+        }
+        return '#475569';
+      };
+
+      // 選中的節點詳情
+      const selectedNode = highlightNode ? nodes.find(n => n.id === highlightNode) : null;
+
+      return (
+        <div className="container">
+          <div className="title">
+            <h1>🔗 計算圖與自動微分</h1>
+            <p>micrograd 核心概念：每個運算都是節點，梯度自動回傳</p>
+          </div>
+
+          {/* 控制區 */}
+          <div className="card">
+            <div className="controls-row">
+              <button className="btn btn-primary" onClick={runForward} 
+                disabled={phase !== 'idle'}>
+                ➡️ 前向傳播
+              </button>
+              <button className="btn btn-danger" onClick={runBackward}
+                disabled={phase !== 'idle'}>
+                ⬅️ 反向傳播
+              </button>
+              <button className="btn btn-secondary" onClick={handleReset}>
+                🔄 重置
+              </button>
+              <div className={`phase-badge phase-${phase}`}>
+                {phase === 'idle' ? '準備中' : phase === 'forward' ? '前向傳播中...' : '反向傳播中...'}
+              </div>
+            </div>
+
+            {/* 輸入滑桿 */}
+            <div className="sliders">
+              <div className="slider-group">
+                <label>x₁ = <span className="value">{x1Val.toFixed(1)}</span></label>
+                <input type="range" min="-3" max="3" step="0.1" value={x1Val}
+                  onChange={e => setX1Val(parseFloat(e.target.value))} />
+              </div>
+              <div className="slider-group">
+                <label>x₂ = <span className="value">{x2Val.toFixed(1)}</span></label>
+                <input type="range" min="-3" max="3" step="0.1" value={x2Val}
+                  onChange={e => setX2Val(parseFloat(e.target.value))} />
+              </div>
+              <div className="slider-group">
+                <label>w₁ = <span className="value">{w1Val.toFixed(1)}</span></label>
+                <input type="range" min="-4" max="4" step="0.1" value={w1Val}
+                  onChange={e => setW1Val(parseFloat(e.target.value))} />
+              </div>
+              <div className="slider-group">
+                <label>w₂ = <span className="value">{w2Val.toFixed(1)}</span></label>
+                <input type="range" min="-4" max="4" step="0.1" value={w2Val}
+                  onChange={e => setW2Val(parseFloat(e.target.value))} />
+              </div>
+              <div className="slider-group">
+                <label>b = <span className="value">{bVal.toFixed(2)}</span></label>
+                <input type="range" min="0" max="10" step="0.1" value={bVal}
+                  onChange={e => setBVal(parseFloat(e.target.value))} />
+              </div>
+            </div>
+
+            {/* 計算圖 */}
+            <div className="graph-container">
+              <svg className="graph-svg" width="750" height="400" viewBox="0 0 750 400">
+                {/* 邊 */}
+                {edges.map((edge, i) => {
+                  const fromNode = nodes.find(n => n.id === edge.from);
+                  const toNode = nodes.find(n => n.id === edge.to);
+                  const color = getEdgeColor(edge);
+                  const isActive = (phase === 'forward' && edge.to === highlightNode) ||
+                                   (phase === 'backward' && edge.from === highlightNode);
+                  return (
+                    <g key={i}>
+                      <line
+                        x1={fromNode.x + 35} y1={fromNode.y}
+                        x2={toNode.x - 35} y2={toNode.y}
+                        stroke={color}
+                        strokeWidth={isActive ? 3 : 1.5}
+                        markerEnd="url(#arrowhead)"
+                      />
+                      {isActive && phase === 'backward' && (
+                        <text
+                          x={(fromNode.x + toNode.x) / 2}
+                          y={(fromNode.y + toNode.y) / 2 - 10}
+                          fill="#ef4444"
+                          fontSize="10"
+                          textAnchor="middle"
+                        >
+                          grad
+                        </text>
+                      )}
+                    </g>
+                  );
+                })}
+
+                {/* 箭頭定義 */}
+                <defs>
+                  <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                    refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#475569" />
+                  </marker>
+                </defs>
+
+                {/* 節點 */}
+                {nodes.map((node, i) => {
+                  const color = getNodeColor(node);
+                  const isHighlight = highlightNode === node.id;
+                  return (
+                    <g key={node.id} style={{ cursor: 'pointer' }}
+                      onClick={() => setHighlightNode(node.id)}>
+                      {/* 節點圓形 */}
+                      <circle
+                        cx={node.x} cy={node.y} r={isHighlight ? 32 : 28}
+                        fill={color}
+                        stroke={isHighlight ? '#fff' : 'none'}
+                        strokeWidth="2"
+                        opacity={0.9}
+                      />
+                      {/* 運算符號 */}
+                      <text x={node.x} y={node.y + 5} textAnchor="middle"
+                        fill="white" fontSize="14" fontWeight="600">
+                        {node.label}
+                      </text>
+                      {/* 數值 */}
+                      <text x={node.x} y={node.y + 50} textAnchor="middle"
+                        fill="#94a3b8" fontSize="11">
+                        {node.value.data.toFixed(2)}
+                      </text>
+                      {/* 梯度（反向傳播後顯示）*/}
+                      {phase === 'backward' || graph.o.grad !== 0 ? (
+                        <text x={node.x} y={node.y - 40} textAnchor="middle"
+                          fill="#ef4444" fontSize="10" fontWeight="500">
+                          ∇{node.value.grad.toFixed(3)}
+                        </text>
+                      ) : null}
+                    </g>
+                  );
+                })}
+
+                {/* 標籤 */}
+                <text x={50} y={390} fill="#64748b" fontSize="11" textAnchor="middle">輸入/權重</text>
+                <text x={200} y={390} fill="#64748b" fontSize="11" textAnchor="middle">乘法</text>
+                <text x={350} y={390} fill="#64748b" fontSize="11" textAnchor="middle">加法</text>
+                <text x={500} y={390} fill="#64748b" fontSize="11" textAnchor="middle">加bias</text>
+                <text x={650} y={390} fill="#64748b" fontSize="11" textAnchor="middle">激活函數</text>
+              </svg>
+            </div>
+
+            {/* 圖例 */}
+            <div className="legend">
+              <div className="legend-item">
+                <div className="legend-dot" style={{ background: '#6366f1' }}></div>
+                <span>輸入 (x)</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-dot" style={{ background: '#8b5cf6' }}></div>
+                <span>權重 (w, b)</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-dot" style={{ background: '#64748b' }}></div>
+                <span>運算 (+, ×)</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-dot" style={{ background: '#f59e0b' }}></div>
+                <span>激活函數</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-dot" style={{ background: '#3b82f6' }}></div>
+                <span>前向流動</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-dot" style={{ background: '#ef4444' }}></div>
+                <span>梯度回傳</span>
+              </div>
+            </div>
+
+            {/* 節點詳情 */}
+            {selectedNode && (
+              <div className="node-detail">
+                <h3>
+                  <span style={{ 
+                    width: '24px', height: '24px', borderRadius: '50%',
+                    background: getNodeColor(selectedNode), display: 'inline-flex',
+                    alignItems: 'center', justifyContent: 'center', fontSize: '12px'
+                  }}>{selectedNode.label}</span>
+                  節點詳情
+                </h3>
+                <div className="detail-grid">
+                  <div className="detail-item">
+                    <div className="label">數值 (data)</div>
+                    <div className="value" style={{ color: '#60a5fa' }}>
+                      {selectedNode.value.data.toFixed(4)}
+                    </div>
+                    <div className="formula">前向傳播計算得到</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="label">梯度 (grad)</div>
+                    <div className="value" style={{ color: '#ef4444' }}>
+                      {selectedNode.value.grad.toFixed(4)}
+                    </div>
+                    <div className="formula">∂output/∂{selectedNode.label}</div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="label">運算類型</div>
+                    <div className="value" style={{ color: '#fbbf24' }}>
+                      {selectedNode.value._op || '葉節點'}
+                    </div>
+                    <div className="formula">
+                      {selectedNode.value._prev.length > 0 
+                        ? `輸入: ${selectedNode.value._prev.length} 個節點`
+                        : '無前置節點'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 程式碼對照 */}
+          <div className="card">
+            <h2>💻 micrograd 程式碼對照</h2>
+            <div className="code-section">
+              <div className="code-block">
+                <h3>Python (micrograd)</h3>
+                <div className="code-line"><span className="code-comment"># 建立計算圖</span></div>
+                <div className="code-line">x1 = <span className="code-func">Value</span>(<span className="code-num">{x1Val.toFixed(1)}</span>)</div>
+                <div className="code-line">x2 = <span className="code-func">Value</span>(<span className="code-num">{x2Val.toFixed(1)}</span>)</div>
+                <div className="code-line">w1 = <span className="code-func">Value</span>(<span className="code-num">{w1Val.toFixed(1)}</span>)</div>
+                <div className="code-line">w2 = <span className="code-func">Value</span>(<span className="code-num">{w2Val.toFixed(1)}</span>)</div>
+                <div className="code-line">b = <span className="code-func">Value</span>(<span className="code-num">{bVal.toFixed(2)}</span>)</div>
+                <div className="code-line"></div>
+                <div className="code-line"><span className="code-comment"># 前向傳播（自動建立計算圖）</span></div>
+                <div className="code-line">n = x1<span className="code-op">*</span>w1 <span className="code-op">+</span> x2<span className="code-op">*</span>w2 <span className="code-op">+</span> b</div>
+                <div className="code-line">o = n.<span className="code-func">tanh</span>()</div>
+                <div className="code-line"></div>
+                <div className="code-line"><span className="code-comment"># 反向傳播（自動計算所有梯度！）</span></div>
+                <div className="code-line">o.<span className="code-func">backward</span>()</div>
+                <div className="code-line"></div>
+                <div className="code-line"><span className="code-comment"># 梯度已自動算好</span></div>
+                <div className="code-line"><span className="code-keyword">print</span>(w1.grad) <span className="code-comment"># {graph.w1.grad.toFixed(4)}</span></div>
+                <div className="code-line"><span className="code-keyword">print</span>(w2.grad) <span className="code-comment"># {graph.w2.grad.toFixed(4)}</span></div>
+              </div>
+              <div className="code-block">
+                <h3>為什麼叫「自動」微分？</h3>
+                <div style={{ fontSize: '13px', lineHeight: '1.8', color: '#d1d5db' }}>
+                  <p><strong style={{ color: '#fbbf24' }}>傳統方式：</strong>手動推導每個公式的導數</p>
+                  <p style={{ marginTop: '8px' }}><strong style={{ color: '#4ade80' }}>自動微分：</strong></p>
+                  <ol style={{ paddingLeft: '20px', marginTop: '4px' }}>
+                    <li>每個運算 (+, ×, tanh) 都知道自己的導數</li>
+                    <li>建立計算圖時，記錄所有依賴關係</li>
+                    <li>呼叫 <code style={{ color: '#60a5fa' }}>backward()</code> 時：
+                      <ul style={{ paddingLeft: '16px', marginTop: '4px' }}>
+                        <li>用拓撲排序找出正確順序</li>
+                        <li>從輸出往回，逐層套用鏈式法則</li>
+                        <li>每個節點累加自己的梯度</li>
+                      </ul>
+                    </li>
+                  </ol>
+                  <p style={{ marginTop: '12px', padding: '8px', background: '#0f172a', borderRadius: '6px' }}>
+                    <strong>關鍵：</strong>你只需要定義前向計算，梯度自動算好！
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 核心概念 */}
+          <div className="card">
+            <h2>🎯 計算圖核心概念</h2>
+            <div className="info-cards">
+              <div className={`info-card ${phase === 'forward' ? 'active' : ''}`}>
+                <h4>📊 計算圖 (DAG)</h4>
+                <p>每個運算都是一個節點，節點之間有依賴關係。這是一個有向無環圖，前向計算定義結構，反向傳播計算梯度。</p>
+              </div>
+              <div className={`info-card ${phase === 'backward' ? 'active' : ''}`}>
+                <h4>⛓️ 鏈式法則</h4>
+                <p>∂L/∂x = ∂L/∂y × ∂y/∂x<br/>從輸出往回乘，每個節點把梯度「分發」給它的輸入。</p>
+              </div>
+              <div className="info-card">
+                <h4>📝 拓撲排序</h4>
+                <p>反向傳播必須按正確順序：先算靠近輸出的節點，再算靠近輸入的。micrograd 用 DFS 自動排序。</p>
+              </div>
+              <div className="info-card">
+                <h4>➕ 梯度累加</h4>
+                <p>如果一個節點被多個運算使用，它的梯度要累加（不是覆蓋）。這就是 <code>grad +=</code> 的原因。</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 計算過程 */}
+          <div className="card">
+            <h2>📐 手動驗算</h2>
+            <div className="code-block" style={{ fontSize: '13px', lineHeight: '2' }}>
+              <span className="code-comment">// 前向傳播</span><br/>
+              x1 × w1 = {x1Val} × {w1Val} = <span className="code-num">{(x1Val * w1Val).toFixed(2)}</span><br/>
+              x2 × w2 = {x2Val} × {w2Val} = <span className="code-num">{(x2Val * w2Val).toFixed(2)}</span><br/>
+              sum = {(x1Val * w1Val).toFixed(2)} + {(x2Val * w2Val).toFixed(2)} = <span className="code-num">{(x1Val * w1Val + x2Val * w2Val).toFixed(2)}</span><br/>
+              n = sum + b = {(x1Val * w1Val + x2Val * w2Val).toFixed(2)} + {bVal} = <span className="code-num">{(x1Val * w1Val + x2Val * w2Val + bVal).toFixed(2)}</span><br/>
+              o = tanh(n) = tanh({(x1Val * w1Val + x2Val * w2Val + bVal).toFixed(2)}) = <span className="code-var">{Math.tanh(x1Val * w1Val + x2Val * w2Val + bVal).toFixed(4)}</span><br/><br/>
+              
+              <span className="code-comment">// 反向傳播（假設 ∂L/∂o = 1）</span><br/>
+              ∂o/∂n = 1 - tanh²(n) = 1 - {Math.tanh(x1Val * w1Val + x2Val * w2Val + bVal).toFixed(4)}² = <span className="code-num">{(1 - Math.pow(Math.tanh(x1Val * w1Val + x2Val * w2Val + bVal), 2)).toFixed(4)}</span><br/>
+              ∂L/∂n = ∂L/∂o × ∂o/∂n = 1 × {(1 - Math.pow(Math.tanh(x1Val * w1Val + x2Val * w2Val + bVal), 2)).toFixed(4)} = <span className="code-num">{(1 - Math.pow(Math.tanh(x1Val * w1Val + x2Val * w2Val + bVal), 2)).toFixed(4)}</span><br/>
+              ∂L/∂w1 = ∂L/∂n × x1 = {(1 - Math.pow(Math.tanh(x1Val * w1Val + x2Val * w2Val + bVal), 2)).toFixed(4)} × {x1Val} = <span className="code-var">{graph.w1.grad.toFixed(4)}</span><br/>
+              ∂L/∂w2 = ∂L/∂n × x2 = {(1 - Math.pow(Math.tanh(x1Val * w1Val + x2Val * w2Val + bVal), 2)).toFixed(4)} × {x2Val} = <span className="code-var">{graph.w2.grad.toFixed(4)}</span>
+            </div>
+          </div>
+
+          <div className="footer">星智未來 · ML 數學視覺化 · 計算圖與自動微分</div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<ComputationGraph />);
+  </script>
+</body>
+</html>

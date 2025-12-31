@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>反向傳播完整版 | 星智未來</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      color: white; 
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    
+    .title { text-align: center; margin-bottom: 24px; }
+    .title h1 { font-size: 26px; margin-bottom: 8px; }
+    .title p { color: #94a3b8; font-size: 14px; }
+    
+    .card { 
+      background: rgba(30, 41, 59, 0.9); 
+      border-radius: 16px; 
+      padding: 24px; 
+      margin-bottom: 20px;
+    }
+    .card h2 { 
+      font-size: 17px; margin-bottom: 16px; 
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* 兩欄佈局 */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    /* 滑桿 */
+    .slider-group { margin-bottom: 14px; }
+    .slider-label { 
+      display: flex; justify-content: space-between; 
+      font-size: 13px; margin-bottom: 6px;
+    }
+    .slider-label span:last-child { color: #60a5fa; font-weight: 600; }
+    input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 6px;
+      background: #334155;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      background: #3b82f6;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    /* 網路視覺化 */
+    .network-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px 10px;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+    }
+    
+    .layer-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 70px;
+    }
+    .layer-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      transition: all 0.3s;
+      flex-direction: column;
+    }
+    .layer-icon .small { font-size: 10px; opacity: 0.8; }
+    .layer-name {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 2px;
+    }
+    .layer-value {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    .arrow-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 60px;
+    }
+    .arrow-line {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    .arrow-line.forward { color: #3b82f6; }
+    .arrow-line.backward { color: #ef4444; }
+    .weight-tag {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 10px;
+      text-align: center;
+    }
+    .weight-tag .label { color: #64748b; }
+    .weight-tag .value { color: #60a5fa; font-weight: 600; }
+    
+    /* 責任條 */
+    .blame-section {
+      margin-top: 8px;
+      text-align: center;
+    }
+    .blame-bar {
+      width: 50px;
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      margin: 4px auto;
+      overflow: hidden;
+    }
+    .blame-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s;
+    }
+    .blame-text {
+      font-size: 10px;
+      font-weight: 600;
+    }
+    
+    .result-box {
+      background: rgba(239, 68, 68, 0.2);
+      border: 2px solid #ef4444;
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-align: center;
+      min-width: 70px;
+    }
+    .result-box.correct {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+    }
+
+    /* 階段指示 */
+    .phase-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .phase-tab {
+      flex: 1;
+      min-width: 80px;
+      padding: 8px 4px;
+      background: #1e293b;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 11px;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+    }
+    .phase-tab.active { border-color: #3b82f6; background: rgba(59, 130, 246, 0.2); }
+    .phase-tab.done { border-color: #10b981; }
+    .phase-tab .emoji { font-size: 16px; }
+    
+    /* 控制按鈕 */
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+    }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-secondary { background: #334155; color: white; }
+    .btn-secondary:hover { background: #475569; }
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* 責任總覽 */
+    .blame-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .blame-card {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .blame-card-title { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+    .blame-card-value { font-size: 22px; font-weight: 700; }
+    .blame-card-bar {
+      height: 6px;
+      background: #1e293b;
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .blame-card-fill { height: 100%; border-radius: 3px; }
+    .blame-card-grad { font-size: 10px; color: #64748b; margin-top: 6px; }
+    
+    /* 公式步驟 */
+    .step-box {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      border-left: 4px solid #475569;
+      transition: all 0.3s;
+    }
+    .step-box.active { border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+    .step-box.done { border-left-color: #10b981; }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .step-box.active .step-num { background: #3b82f6; }
+    .step-box.done .step-num { background: #10b981; }
+    .step-title { font-weight: 600; font-size: 14px; }
+    .step-desc { font-size: 12px; color: #94a3b8; line-height: 1.5; margin-bottom: 10px; }
+    .step-formula {
+      background: #1e293b;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    .hl { color: #fbbf24; font-weight: 600; }
+    .red { color: #f87171; }
+    .blue { color: #60a5fa; }
+    .green { color: #4ade80; }
+    .purple { color: #c084fc; }
+    
+    /* 統計 */
+    .stats-row {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .stats-row span { color: #e2e8f0; font-weight: 600; }
+    
+    .footer { text-align: center; color: #475569; font-size: 12px; margin-top: 30px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    function BackpropComplete() {
+      // 可調變量
+      const [input, setInput] = useState(2);
+      const [target, setTarget] = useState(6);
+      const [lr, setLr] = useState(0.05);
+      
+      // 三層權重
+      const [w1, setW1] = useState(0.5);
+      const [w2, setW2] = useState(0.8);
+      const [w3, setW3] = useState(0.3);
+      
+      // 動畫狀態
+      const [phase, setPhase] = useState(0);
+      const [isRunning, setIsRunning] = useState(false);
+      const [epoch, setEpoch] = useState(0);
+      const [history, setHistory] = useState([]);
+      
+      const timerRef = useRef(null);
+
+      // === 前向傳播計算 ===
+      const a0 = input;                    // 輸入
+      const z1 = a0 * w1;                  // 第1層加權和
+      const a1 = z1;                       // 第1層輸出（線性激活）
+      const z2 = a1 * w2;                  // 第2層加權和
+      const a2 = z2;                       // 第2層輸出
+      const z3 = a2 * w3;                  // 第3層加權和
+      const a3 = z3;                       // 最終輸出
+      const output = a3;
+      
+      // === 損失計算 ===
+      const error = target - output;
+      const loss = 0.5 * error * error;
+      
+      // === 反向傳播（鏈式法則）===
+      // ∂L/∂a3 = -(target - a3) = -(target - output)
+      const dL_da3 = -error;
+      
+      // ∂L/∂w3 = ∂L/∂a3 × ∂a3/∂w3 = dL_da3 × a2
+      const da3_dw3 = a2;
+      const dL_dw3 = dL_da3 * da3_dw3;
+      
+      // ∂L/∂a2 = ∂L/∂a3 × ∂a3/∂a2 = dL_da3 × w3
+      const da3_da2 = w3;
+      const dL_da2 = dL_da3 * da3_da2;
+      
+      // ∂L/∂w2 = ∂L/∂a2 × ∂a2/∂w2 = dL_da2 × a1
+      const da2_dw2 = a1;
+      const dL_dw2 = dL_da2 * da2_dw2;
+      
+      // ∂L/∂a1 = ∂L/∂a2 × ∂a2/∂a1 = dL_da2 × w2
+      const da2_da1 = w2;
+      const dL_da1 = dL_da2 * da2_da1;
+      
+      // ∂L/∂w1 = ∂L/∂a1 × ∂a1/∂w1 = dL_da1 × a0
+      const da1_dw1 = a0;
+      const dL_dw1 = dL_da1 * da1_dw1;
+      
+      // === 責任比例 ===
+      const totalGrad = Math.abs(dL_dw1) + Math.abs(dL_dw2) + Math.abs(dL_dw3) + 0.0001;
+      const blame1 = Math.abs(dL_dw1) / totalGrad * 100;
+      const blame2 = Math.abs(dL_dw2) / totalGrad * 100;
+      const blame3 = Math.abs(dL_dw3) / totalGrad * 100;
+      
+      // === 新權重 ===
+      const w1_new = w1 - lr * dL_dw1;
+      const w2_new = w2 - lr * dL_dw2;
+      const w3_new = w3 - lr * dL_dw3;
+
+      // 自動播放
+      useEffect(() => {
+        if (!isRunning) return;
+        timerRef.current = setTimeout(() => {
+          if (phase < 4) {
+            setPhase(p => p + 1);
+          } else {
+            // 更新權重
+            setW1(w1_new);
+            setW2(w2_new);
+            setW3(w3_new);
+            setHistory(h => [...h.slice(-19), { loss: loss.toFixed(4) }]);
+            setEpoch(e => e + 1);
+            setPhase(0);
+            setIsRunning(false);
+          }
+        }, 2000);
+        return () => clearTimeout(timerRef.current);
+      }, [isRunning, phase]);
+
+      const handleNext = () => {
+        if (phase < 4) {
+          setPhase(p => p + 1);
+        } else {
+          setW1(w1_new);
+          setW2(w2_new);
+          setW3(w3_new);
+          setHistory(h => [...h.slice(-19), { loss: loss.toFixed(4) }]);
+          setEpoch(e => e + 1);
+          setPhase(0);
+        }
+      };
+
+      const handleAuto = () => {
+        setPhase(1);
+        setIsRunning(true);
+      };
+
+      const handleTrain = () => {
+        let tw1 = w1, tw2 = w2, tw3 = w3;
+        const newHist = [];
+        for (let i = 0; i < 50; i++) {
+          const ta1 = input * tw1;
+          const ta2 = ta1 * tw2;
+          const tout = ta2 * tw3;
+          const terr = target - tout;
+          const tloss = 0.5 * terr * terr;
+          newHist.push({ loss: tloss.toFixed(4) });
+          
+          const tdL_da3 = -terr;
+          const tdL_dw3 = tdL_da3 * ta2;
+          const tdL_da2 = tdL_da3 * tw3;
+          const tdL_dw2 = tdL_da2 * ta1;
+          const tdL_da1 = tdL_da2 * tw2;
+          const tdL_dw1 = tdL_da1 * input;
+          
+          tw1 -= lr * tdL_dw1;
+          tw2 -= lr * tdL_dw2;
+          tw3 -= lr * tdL_dw3;
+        }
+        setW1(tw1);
+        setW2(tw2);
+        setW3(tw3);
+        setHistory(newHist.slice(-20));
+        setEpoch(e => e + 50);
+        setPhase(0);
+      };
+
+      const handleReset = () => {
+        setW1(0.5); setW2(0.8); setW3(0.3);
+        setPhase(0);
+        setIsRunning(false);
+        setEpoch(0);
+        setHistory([]);
+      };
+
+      const getPhaseClass = (idx) => {
+        if (phase === idx) return 'active';
+        if (phase > idx) return 'done';
+        return '';
+      };
+
+      const getBlameColor = (b) => b > 50 ? '#ef4444' : b > 30 ? '#f59e0b' : '#10b981';
+
+      return (
+        <div className="container">
+          <div className="title">
+            <h1>🧠 反向傳播完整版</h1>
+            <p>三層網路 · 責任分配 · 詳細公式 · 可調變量</p>
+          </div>
+
+          {/* 控制面板 + 網路視覺化 */}
+          <div className="card">
+            <div className="two-col">
+              {/* 左：可調變量 */}
+              <div>
+                <h2>⚙️ 可調變量</h2>
+                <div className="slider-group">
+                  <div className="slider-label">
+                    <span>輸入值 x</span>
+                    <span>{input}</span>
+                  </div>
+                  <input type="range" min="1" max="5" step="0.5" value={input}
+                    onChange={e => setInput(parseFloat(e.target.value))} />
+                </div>
+                <div className="slider-group">
+                  <div className="slider-label">
+                    <span>目標值 target</span>
+                    <span>{target}</span>
+                  </div>
+                  <input type="range" min="1" max="10" step="0.5" value={target}
+                    onChange={e => setTarget(parseFloat(e.target.value))} />
+                </div>
+                <div className="slider-group">
+                  <div className="slider-label">
+                    <span>學習率 η</span>
+                    <span>{lr}</span>
+                  </div>
+                  <input type="range" min="0.01" max="0.2" step="0.01" value={lr}
+                    onChange={e => setLr(parseFloat(e.target.value))} />
+                </div>
+                <hr style={{ border: 'none', borderTop: '1px solid #334155', margin: '16px 0' }} />
+                <div className="slider-group">
+                  <div className="slider-label">
+                    <span>權重 w1 (輸入→第1層)</span>
+                    <span>{w1.toFixed(3)}</span>
+                  </div>
+                  <input type="range" min="-2" max="2" step="0.1" value={w1}
+                    onChange={e => setW1(parseFloat(e.target.value))} />
+                </div>
+                <div className="slider-group">
+                  <div className="slider-label">
+                    <span>權重 w2 (第1層→第2層)</span>
+                    <span>{w2.toFixed(3)}</span>
+                  </div>
+                  <input type="range" min="-2" max="2" step="0.1" value={w2}
+                    onChange={e => setW2(parseFloat(e.target.value))} />
+                </div>
+                <div className="slider-group">
+                  <div className="slider-label">
+                    <span>權重 w3 (第2層→輸出)</span>
+                    <span>{w3.toFixed(3)}</span>
+                  </div>
+                  <input type="range" min="-2" max="2" step="0.1" value={w3}
+                    onChange={e => setW3(parseFloat(e.target.value))} />
+                </div>
+              </div>
+
+              {/* 右：網路圖 */}
+              <div>
+                <h2>🔗 網路結構</h2>
+                <div className="network-container">
+                  {/* 輸入 */}
+                  <div className="layer-box">
+                    <div className="layer-icon" style={{ background: '#6366f1' }}>
+                      <span className="small">輸入</span>
+                      <span>x</span>
+                    </div>
+                    <div className="layer-value">{input}</div>
+                  </div>
+
+                  {/* w1 */}
+                  <div className="arrow-box">
+                    <div className={`arrow-line ${phase >= 1 ? 'forward' : ''} ${phase === 3 ? 'backward' : ''}`}>
+                      {phase === 3 ? '←' : '→'}
+                    </div>
+                    <div className="weight-tag">
+                      <div className="label">w1</div>
+                      <div className="value">{w1.toFixed(2)}</div>
+                    </div>
+                  </div>
+
+                  {/* 第1層 */}
+                  <div className="layer-box">
+                    <div className="layer-icon" style={{ 
+                      background: phase >= 4 ? getBlameColor(blame1) : '#8b5cf6'
+                    }}>
+                      <span className="small">第1層</span>
+                      <span>a1</span>
+                    </div>
+                    <div className="layer-value">{a1.toFixed(2)}</div>
+                    {phase >= 4 && (
+                      <div className="blame-section">
+                        <div className="blame-bar">
+                          <div className="blame-fill" style={{ width: `${blame1}%`, background: getBlameColor(blame1) }}></div>
+                        </div>
+                        <div className="blame-text" style={{ color: getBlameColor(blame1) }}>{blame1.toFixed(0)}%</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* w2 */}
+                  <div className="arrow-box">
+                    <div className={`arrow-line ${phase >= 1 ? 'forward' : ''} ${phase === 3 ? 'backward' : ''}`}>
+                      {phase === 3 ? '←' : '→'}
+                    </div>
+                    <div className="weight-tag">
+                      <div className="label">w2</div>
+                      <div className="value">{w2.toFixed(2)}</div>
+                    </div>
+                  </div>
+
+                  {/* 第2層 */}
+                  <div className="layer-box">
+                    <div className="layer-icon" style={{ 
+                      background: phase >= 4 ? getBlameColor(blame2) : '#a855f7'
+                    }}>
+                      <span className="small">第2層</span>
+                      <span>a2</span>
+                    </div>
+                    <div className="layer-value">{a2.toFixed(2)}</div>
+                    {phase >= 4 && (
+                      <div className="blame-section">
+                        <div className="blame-bar">
+                          <div className="blame-fill" style={{ width: `${blame2}%`, background: getBlameColor(blame2) }}></div>
+                        </div>
+                        <div className="blame-text" style={{ color: getBlameColor(blame2) }}>{blame2.toFixed(0)}%</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* w3 */}
+                  <div className="arrow-box">
+                    <div className={`arrow-line ${phase >= 1 ? 'forward' : ''} ${phase === 3 ? 'backward' : ''}`}>
+                      {phase === 3 ? '←' : '→'}
+                    </div>
+                    <div className="weight-tag">
+                      <div className="label">w3</div>
+                      <div className="value">{w3.toFixed(2)}</div>
+                    </div>
+                  </div>
+
+                  {/* 輸出 */}
+                  <div className="layer-box">
+                    <div className="layer-icon" style={{ 
+                      background: phase >= 4 ? getBlameColor(blame3) : '#f59e0b'
+                    }}>
+                      <span className="small">輸出</span>
+                      <span>ŷ</span>
+                    </div>
+                    <div className="layer-value">{output.toFixed(2)}</div>
+                    {phase >= 4 && (
+                      <div className="blame-section">
+                        <div className="blame-bar">
+                          <div className="blame-fill" style={{ width: `${blame3}%`, background: getBlameColor(blame3) }}></div>
+                        </div>
+                        <div className="blame-text" style={{ color: getBlameColor(blame3) }}>{blame3.toFixed(0)}%</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* vs 目標 */}
+                  <div style={{ margin: '0 8px', color: '#64748b' }}>vs</div>
+                  
+                  <div className={`result-box ${Math.abs(error) < 0.3 ? 'correct' : ''}`}>
+                    <div style={{ fontSize: '10px', color: '#94a3b8' }}>目標</div>
+                    <div style={{ fontSize: '20px', fontWeight: '700' }}>{target}</div>
+                    <div style={{ fontSize: '10px', marginTop: '4px' }}>
+                      {Math.abs(error) < 0.3 ? '✅' : `差 ${Math.abs(error).toFixed(2)}`}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 統計 */}
+                <div className="stats-row">
+                  <div>訓練次數: <span>{epoch}</span></div>
+                  <div>損失: <span style={{ color: '#f59e0b' }}>{loss.toFixed(4)}</span></div>
+                  <div>誤差: <span style={{ color: error > 0 ? '#4ade80' : '#f87171' }}>{error.toFixed(3)}</span></div>
+                </div>
+              </div>
+            </div>
+
+            {/* 控制按鈕 */}
+            <div className="controls">
+              <button className="btn btn-primary" onClick={handleNext} disabled={isRunning}>
+                👉 下一步
+              </button>
+              <button className="btn btn-secondary" onClick={handleAuto} disabled={isRunning}>
+                ▶️ 自動播放
+              </button>
+              <button className="btn btn-success" onClick={handleTrain}>
+                ⚡ 訓練 50 次
+              </button>
+              <button className="btn btn-secondary" onClick={handleReset}>
+                🔄 重置
+              </button>
+            </div>
+
+            {/* 階段指示 */}
+            <div className="phase-tabs">
+              <div className={`phase-tab ${getPhaseClass(1)}`}>
+                <div className="emoji">➡️</div>
+                <div>1.前向傳播</div>
+              </div>
+              <div className={`phase-tab ${getPhaseClass(2)}`}>
+                <div className="emoji">❌</div>
+                <div>2.計算損失</div>
+              </div>
+              <div className={`phase-tab ${getPhaseClass(3)}`}>
+                <div className="emoji">⬅️</div>
+                <div>3.反向傳播</div>
+              </div>
+              <div className={`phase-tab ${getPhaseClass(4)}`}>
+                <div className="emoji">🔧</div>
+                <div>4.更新權重</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 詳細公式步驟 */}
+          <div className="card">
+            <h2>📐 詳細計算過程</h2>
+
+            {/* Step 1: 前向傳播 */}
+            <div className={`step-box ${getPhaseClass(1)}`}>
+              <div className="step-header">
+                <div className="step-num">1</div>
+                <div className="step-title">前向傳播 — 從輸入算到輸出</div>
+              </div>
+              <div className="step-desc">
+                資料從左到右流過每一層，每層乘上自己的權重。
+              </div>
+              <div className="step-formula">
+                a1 = x × w1 = <span className="blue">{input}</span> × <span className="blue">{w1.toFixed(3)}</span> = <span className="hl">{a1.toFixed(3)}</span><br/>
+                a2 = a1 × w2 = <span className="blue">{a1.toFixed(3)}</span> × <span className="blue">{w2.toFixed(3)}</span> = <span className="hl">{a2.toFixed(3)}</span><br/>
+                ŷ = a2 × w3 = <span className="blue">{a2.toFixed(3)}</span> × <span className="blue">{w3.toFixed(3)}</span> = <span className="hl">{output.toFixed(3)}</span>
+              </div>
+            </div>
+
+            {/* Step 2: 計算損失 */}
+            <div className={`step-box ${getPhaseClass(2)}`}>
+              <div className="step-header">
+                <div className="step-num">2</div>
+                <div className="step-title">計算損失 — 錯了多少？</div>
+              </div>
+              <div className="step-desc">
+                用均方誤差 (MSE) 衡量預測和目標的差距。
+              </div>
+              <div className="step-formula">
+                誤差 = target - ŷ = <span className="green">{target}</span> - <span className="hl">{output.toFixed(3)}</span> = <span className="red">{error.toFixed(3)}</span><br/>
+                Loss = ½ × 誤差² = ½ × ({error.toFixed(3)})² = <span className="red">{loss.toFixed(4)}</span>
+              </div>
+            </div>
+
+            {/* Step 3: 反向傳播 */}
+            <div className={`step-box ${getPhaseClass(3)}`}>
+              <div className="step-header">
+                <div className="step-num">3</div>
+                <div className="step-title">反向傳播 — 用鏈式法則分配責任</div>
+              </div>
+              <div className="step-desc">
+                從輸出往回算，用<strong>鏈式法則</strong>計算每個權重對損失的影響（梯度）。<br/>
+                梯度越大 = 責任越大 = 需要調整越多。
+              </div>
+              <div className="step-formula">
+                <span className="purple">【從輸出層開始】</span><br/>
+                ∂L/∂ŷ = -(target - ŷ) = <span className="red">{dL_da3.toFixed(3)}</span><br/><br/>
+                
+                <span className="purple">【第3層權重 w3 的責任】</span><br/>
+                ∂L/∂w3 = ∂L/∂ŷ × ∂ŷ/∂w3 = <span className="red">{dL_da3.toFixed(3)}</span> × <span className="blue">{da3_dw3.toFixed(3)}</span> = <span className="hl">{dL_dw3.toFixed(3)}</span><br/><br/>
+                
+                <span className="purple">【誤差傳回第2層】</span><br/>
+                ∂L/∂a2 = ∂L/∂ŷ × ∂ŷ/∂a2 = <span className="red">{dL_da3.toFixed(3)}</span> × <span className="blue">{da3_da2.toFixed(3)}</span> = {dL_da2.toFixed(3)}<br/><br/>
+                
+                <span className="purple">【第2層權重 w2 的責任】</span><br/>
+                ∂L/∂w2 = ∂L/∂a2 × ∂a2/∂w2 = {dL_da2.toFixed(3)} × <span className="blue">{da2_dw2.toFixed(3)}</span> = <span className="hl">{dL_dw2.toFixed(3)}</span><br/><br/>
+                
+                <span className="purple">【誤差傳回第1層】</span><br/>
+                ∂L/∂a1 = ∂L/∂a2 × ∂a2/∂a1 = {dL_da2.toFixed(3)} × <span className="blue">{da2_da1.toFixed(3)}</span> = {dL_da1.toFixed(3)}<br/><br/>
+                
+                <span className="purple">【第1層權重 w1 的責任】</span><br/>
+                ∂L/∂w1 = ∂L/∂a1 × ∂a1/∂w1 = {dL_da1.toFixed(3)} × <span className="blue">{da1_dw1.toFixed(3)}</span> = <span className="hl">{dL_dw1.toFixed(3)}</span>
+              </div>
+            </div>
+
+            {/* 責任總覽 */}
+            {phase >= 3 && (
+              <div className="blame-summary">
+                <div className="blame-card">
+                  <div className="blame-card-title">w1 責任</div>
+                  <div className="blame-card-value" style={{ color: getBlameColor(blame1) }}>{blame1.toFixed(0)}%</div>
+                  <div className="blame-card-bar">
+                    <div className="blame-card-fill" style={{ width: `${blame1}%`, background: getBlameColor(blame1) }}></div>
+                  </div>
+                  <div className="blame-card-grad">梯度: {dL_dw1.toFixed(3)}</div>
+                </div>
+                <div className="blame-card">
+                  <div className="blame-card-title">w2 責任</div>
+                  <div className="blame-card-value" style={{ color: getBlameColor(blame2) }}>{blame2.toFixed(0)}%</div>
+                  <div className="blame-card-bar">
+                    <div className="blame-card-fill" style={{ width: `${blame2}%`, background: getBlameColor(blame2) }}></div>
+                  </div>
+                  <div className="blame-card-grad">梯度: {dL_dw2.toFixed(3)}</div>
+                </div>
+                <div className="blame-card">
+                  <div className="blame-card-title">w3 責任</div>
+                  <div className="blame-card-value" style={{ color: getBlameColor(blame3) }}>{blame3.toFixed(0)}%</div>
+                  <div className="blame-card-bar">
+                    <div className="blame-card-fill" style={{ width: `${blame3}%`, background: getBlameColor(blame3) }}></div>
+                  </div>
+                  <div className="blame-card-grad">梯度: {dL_dw3.toFixed(3)}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: 更新權重 */}
+            <div className={`step-box ${getPhaseClass(4)}`} style={{ marginTop: '12px' }}>
+              <div className="step-header">
+                <div className="step-num">4</div>
+                <div className="step-title">更新權重 — 梯度下降</div>
+              </div>
+              <div className="step-desc">
+                根據責任大小，調整每個權重。責任越大，調整越多。
+              </div>
+              <div className="step-formula">
+                w1_new = w1 - η × ∂L/∂w1 = <span className="blue">{w1.toFixed(3)}</span> - <span className="green">{lr}</span> × <span className="red">{dL_dw1.toFixed(3)}</span> = <span className="hl">{w1_new.toFixed(3)}</span><br/>
+                w2_new = w2 - η × ∂L/∂w2 = <span className="blue">{w2.toFixed(3)}</span> - <span className="green">{lr}</span> × <span className="red">{dL_dw2.toFixed(3)}</span> = <span className="hl">{w2_new.toFixed(3)}</span><br/>
+                w3_new = w3 - η × ∂L/∂w3 = <span className="blue">{w3.toFixed(3)}</span> - <span className="green">{lr}</span> × <span className="red">{dL_dw3.toFixed(3)}</span> = <span className="hl">{w3_new.toFixed(3)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 目標說明 */}
+          <div className="card">
+            <h2>🎯 收斂目標</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ background: '#0f172a', padding: '16px', borderRadius: '10px' }}>
+                <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px' }}>理想狀態</div>
+                <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
+                  x × w1 × w2 × w3 = target<br/>
+                  {input} × w1 × w2 × w3 = {target}<br/>
+                  w1 × w2 × w3 = <span className="green">{(target / input).toFixed(2)}</span>
+                </div>
+              </div>
+              <div style={{ background: '#0f172a', padding: '16px', borderRadius: '10px' }}>
+                <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px' }}>目前狀態</div>
+                <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
+                  w1 × w2 × w3 = {w1.toFixed(2)} × {w2.toFixed(2)} × {w3.toFixed(2)}<br/>
+                  = <span className="hl">{(w1 * w2 * w3).toFixed(3)}</span><br/>
+                  {Math.abs(w1 * w2 * w3 - target / input) < 0.1 
+                    ? <span className="green">✅ 已收斂！</span>
+                    : <span className="red">還差 {Math.abs(w1 * w2 * w3 - target / input).toFixed(3)}</span>}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="footer">星智未來 · ML 數學視覺化 · 反向傳播完整版</div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<BackpropComplete />);
+  </script>
+</body>
+</html>

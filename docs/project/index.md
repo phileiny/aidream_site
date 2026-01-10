@@ -13,6 +13,7 @@ Welcome to the Project articles section. Here you will find posts about our Proj
 
 ## Recent Posts
 
+- [從劇本到成品：我用 AI 工具打造動畫短影片的完整工作流](./ai-animation-workflow-blog)
 - [破解配送機器人的 2.4G 本地通訊協議：一場逆向工程的冒險](./yogo-2.4g-reverse-engineering-blog)
 - [用滑鼠畫軌道，讓彈珠滾起來——我的彈珠雲霄飛車模擬器](./marble-run-blog)
 - [Vibe Coding 實戰指南:PIV 框架與三大黃金法則](./vibe-coding-piv-framework)

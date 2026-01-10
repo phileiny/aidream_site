@@ -97,6 +97,7 @@ export default defineConfig({
           text: 'Project Articles',
           items: [
             { text: 'Index', link: '/project/' },
+            { text: '從劇本到成品：我用 AI 工具打造動畫短影片的完整工作流', link: '/project/ai-animation-workflow-blog' },
             { text: '微微創公司的 AI 生存指南：不建護城河，建關係', link: '/project/micro-startup-ai-era' },
             { text: 'AI 時代的軟體開發革命：有經驗開發者的新機會', link: '/project/ai_software_development_blog' },
             { text: '從零開始搞懂 GitHub 協作：開源新手必讀的名詞大全', link: '/project/github-collaboration-blog' },

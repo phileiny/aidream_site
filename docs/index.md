@@ -33,6 +33,13 @@ features:
 
 ## 📝 最新文章
 
+### [從混沌到秩序：咩猛 Memo 開發實錄](/project/memobot-development-journey)
+**專案** · 2026-01-11
+
+從 Debug 地獄爬出來的真實紀錄。分享如何用 Claude Code + PIV/TDD 方法論，讓 AI 輔助開發從混亂走向有序。
+
+---
+
 ### [從劇本到成品：我用 AI 工具打造動畫短影片的完整工作流](/project/ai-animation-workflow-blog)
 **專案** · 2026-01-10
 
@@ -58,12 +65,5 @@ features:
 **AI** · 2025-12-11
 
 從 Andrej Karpathy 的一則推文，看見 AI 算力競賽的下一個戰場。Starcloud 在太空中訓練了第一個 LLM，Google、SpaceX 也紛紛加入戰局。
-
----
-
-### [CS336 Week 1：Micrograd 深度拆解](/learning/cs336/CS336_Week1_Micrograd_Deep_Dive)
-**學習** · 2025-12-11
-
-當我們把「可怕的術語」翻譯成「12 歲也懂的白話文」，一切就不一樣了。本文記錄 Week 1 學習 micrograd 的概念筆記。
 
 

@@ -2,6 +2,10 @@
 
 一個可直接部署的 VitePress 靜態網站樣板。支援圖文寫作、內建本地搜尋、可佈署到 GitHub Pages 或 Vercel。
 
+## 📌 置頂文章
+
+- [從混沌到秩序：咩猛 Memo 開發實錄](/project/memobot-development-journey) - 分享 AI 輔助開發從混亂走向有序的真實歷程
+
 ## 快速開始
 ```bash
 npm install

@@ -71,6 +71,7 @@ export default defineConfig({
           text: 'AI Articles',
           items: [
             { text: 'Index', link: '/ai/' },
+            { text: 'AI 時代的哲學復興：當形上學走出象牙塔', link: '/ai/ai-philosophical-renaissance' },
             { text: '當 AI 飛向太空：nanoGPT 上軌道背後的科技巨頭競賽', link: '/ai/space-ai-race-blog' },
             { text: 'World Model：通往 AGI 的關鍵賽道', link: '/ai/world-model-agi-blog' },
             { text: '從《The Thinking Game》看 AGI：一場潛能的挖掘與覺醒', link: '/ai/agi-awakening-blog' },

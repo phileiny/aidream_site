@@ -13,6 +13,7 @@ Welcome to the AI articles section. Here you will find posts about Artificial In
 
 ## Recent Posts
 
+- [AI 時代的哲學復興：當形上學走出象牙塔](./ai-philosophical-renaissance)
 - [當 AI 飛向太空：nanoGPT 上軌道背後的科技巨頭競賽](./space-ai-race-blog)
 - [World Model：通往 AGI 的關鍵賽道](./world-model-agi-blog)
 - [從《The Thinking Game》看 AGI：一場潛能的挖掘與覺醒](./agi-awakening-blog)

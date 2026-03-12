@@ -13,6 +13,8 @@ Welcome to the AI articles section. Here you will find posts about Artificial In
 
 ## Recent Posts
 
+- [當世界開始重新洗牌，台灣在哪裡？——風傳媒「劇變與解方」論壇現場筆記](./風傳媒論壇_部落格_20260311)
+- [AI 沒有任何東西是「人工的」——李飛飛 2018 國會聽證會的五大預言，八年後全部命中](./ai-nothing-artificial-feifei-li)
 - [以易經八卦推演 AI 文明的前世今生與未來](./iching-framework-for-ai-evolution)
 - [AI 時代的哲學復興：當形上學走出象牙塔](./ai-philosophical-renaissance)
 - [當 AI 飛向太空：nanoGPT 上軌道背後的科技巨頭競賽](./space-ai-race-blog)

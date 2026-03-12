@@ -71,6 +71,8 @@ export default defineConfig({
           text: 'AI Articles',
           items: [
             { text: 'Index', link: '/ai/' },
+            { text: '當世界開始重新洗牌，台灣在哪裡？——風傳媒「劇變與解方」論壇現場筆記', link: '/ai/風傳媒論壇_部落格_20260311' },
+            { text: 'AI 沒有任何東西是「人工的」——李飛飛 2018 國會聽證會的五大預言，八年後全部命中', link: '/ai/ai-nothing-artificial-feifei-li' },
             { text: '以易經八卦推演 AI 文明的前世今生與未來', link: '/ai/iching-framework-for-ai-evolution' },
             { text: 'AI 時代的哲學復興：當形上學走出象牙塔', link: '/ai/ai-philosophical-renaissance' },
             { text: '當 AI 飛向太空：nanoGPT 上軌道背後的科技巨頭競賽', link: '/ai/space-ai-race-blog' },

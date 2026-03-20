@@ -101,6 +101,8 @@ export default defineConfig({
           text: 'Project Articles',
           items: [
             { text: 'Index', link: '/project/' },
+            { text: '為什麼每天摸一下貓的頭，是一件宇宙學意義的事', link: '/project/migato-cosmic-ritual' },
+            { text: '你不是在觀看這個世界，你是在渲染它', link: '/project/participatory-universe-v2' },
             { text: '從混沌到秩序：咩猛 Memo 開發實錄', link: '/project/memobot-development-journey' },
             { text: '從劇本到成品：我用 AI 工具打造動畫短影片的完整工作流', link: '/project/ai-animation-workflow-blog' },
             { text: '微微創公司的 AI 生存指南：不建護城河，建關係', link: '/project/micro-startup-ai-era' },

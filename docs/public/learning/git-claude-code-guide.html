@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git × Claude Code — 版控入門指南</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;600&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --accent: #c84b31;
+    --accent2: #2e86ab;
+    --gold: #d4a853;
+    --muted: #6b6556;
+    --card: #fffdf7;
+    --border: #d9d0be;
+    --code-bg: #1a1a2e;
+    --code-text: #a8d8a8;
+    --success: #3a7d44;
+    --warn: #c84b31;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', 'Noto Serif TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 3rem 2rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    border: 60px solid rgba(196,75,49,0.15);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 20%;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 40px solid rgba(46,134,171,0.1);
+  }
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  header h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  header h1 span { color: var(--accent); }
+  header p {
+    color: rgba(245,240,232,0.7);
+    font-size: 1rem;
+    max-width: 540px;
+  }
+
+  /* Nav tabs */
+  .nav-tabs {
+    background: var(--ink);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 0 2rem;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .nav-tabs::-webkit-scrollbar { height: 3px; }
+  .nav-tabs::-webkit-scrollbar-thumb { background: var(--accent); }
+  .tab-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(245,240,232,0.5);
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .tab-btn:hover { color: var(--paper); }
+  .tab-btn.active {
+    color: var(--paper);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Main content */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 4rem;
+  }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* Section header */
+  .section-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-header .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .section-header h2 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .section-header p {
+    color: var(--muted);
+    margin-top: 0.4rem;
+    font-size: 0.95rem;
+  }
+
+  /* Concept cards */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .concept-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .concept-card:hover {
+    border-color: var(--accent);
+    box-shadow: 4px 4px 0 var(--accent);
+    transform: translate(-2px, -2px);
+  }
+  .concept-card .icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .concept-card h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+  }
+  .concept-card p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .concept-card .detail {
+    display: none;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--border);
+    font-size: 0.82rem;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .concept-card.open .detail { display: block; }
+  .concept-card .toggle-hint {
+    font-size: 0.72rem;
+    color: var(--accent2);
+    margin-top: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Mental model diagram */
+  .mental-model {
+    background: var(--ink);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    margin: 1.5rem 0;
+    color: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    overflow-x: auto;
+  }
+  .mental-model .title {
+    color: var(--gold);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+  }
+  .mental-model .flow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  .mental-model .box {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+  .mental-model .box.highlight { background: rgba(196,75,49,0.3); border-color: var(--accent); }
+  .mental-model .box.blue { background: rgba(46,134,171,0.3); border-color: var(--accent2); }
+  .mental-model .arrow { color: var(--gold); font-size: 1rem; }
+  .mental-model .note {
+    font-size: 0.72rem;
+    color: rgba(245,240,232,0.4);
+    margin-top: 0.75rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 0.75rem;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-block .cb-label {
+    position: absolute;
+    top: 0.5rem; right: 0.75rem;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .code-block .cmd { color: #a8d8a8; }
+  .code-block .comment { color: rgba(255,255,255,0.3); }
+  .code-block .string { color: #f7d59c; }
+  .code-block .prompt { color: rgba(255,255,255,0.3); user-select: none; }
+
+  /* Steps */
+  .steps { margin: 1.5rem 0; }
+  .step {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    align-items: start;
+  }
+  .step-num {
+    width: 2.5rem; height: 2.5rem;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .step-body h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .step-body p {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(196,75,49,0.06);
+    padding: 0.9rem 1.2rem;
+    border-radius: 0 6px 6px 0;
+    margin: 1.25rem 0;
+    font-size: 0.88rem;
+  }
+  .callout.tip {
+    border-color: var(--success);
+    background: rgba(58,125,68,0.06);
+  }
+  .callout.info {
+    border-color: var(--accent2);
+    background: rgba(46,134,171,0.06);
+  }
+  .callout strong { display: block; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .callout.tip strong { color: var(--success); }
+  .callout.info strong { color: var(--accent2); }
+  .callout strong:not(.callout.tip strong):not(.callout.info strong) { color: var(--accent); }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 1.25rem 0;
+  }
+  th {
+    background: var(--ink);
+    color: var(--gold);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-align: left;
+    padding: 0.6rem 1rem;
+  }
+  td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+  td code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    background: rgba(0,0,0,0.08);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  /* Quiz */
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .quiz-card .q {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .quiz-card .q span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+  .quiz-opt {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+  }
+  .quiz-opt:hover { border-color: var(--accent2); background: rgba(46,134,171,0.05); }
+  .quiz-opt.correct { border-color: var(--success); background: rgba(58,125,68,0.1); color: var(--success); }
+  .quiz-opt.wrong { border-color: var(--accent); background: rgba(196,75,49,0.08); color: var(--accent); }
+  .quiz-feedback {
+    margin-top: 0.75rem;
+    font-size: 0.83rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 5px;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: rgba(58,125,68,0.1); color: var(--success); }
+  .quiz-feedback.no { background: rgba(196,75,49,0.08); color: var(--accent); }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    margin-left: 0.25rem;
+  }
+  .badge.red { background: rgba(196,75,49,0.15); color: var(--accent); }
+  .badge.blue { background: rgba(46,134,171,0.15); color: var(--accent2); }
+  .badge.green { background: rgba(58,125,68,0.15); color: var(--success); }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  h3.sub { font-size: 1rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--ink); }
+  p.prose { font-size: 0.9rem; color: var(--muted); margin-bottom: 0.75rem; line-height: 1.7; }
+
+  @media (max-width: 600px) {
+    header { padding: 2rem 1.25rem; }
+    main { padding: 1.5rem 1.25rem 3rem; }
+    .nav-tabs { padding: 0 0.5rem; }
+    .tab-btn { padding: 0.9rem 0.9rem; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-tag">// Team Onboarding Guide</div>
+    <h1>Git 版控 × <span>Claude Code</span><br>給團隊的入門指南</h1>
+    <p>不需要背指令。理解概念，讓 Claude 幫你操作。</p>
+  </div>
+</header>
+
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="showTab(0)">① 版控是什麼</button>
+  <button class="tab-btn" onclick="showTab(1)">② 核心概念</button>
+  <button class="tab-btn" onclick="showTab(2)">③ Claude Code 流程</button>
+  <button class="tab-btn" onclick="showTab(3)">④ 協作規範</button>
+  <button class="tab-btn" onclick="showTab(4)">⑤ 常見狀況</button>
+  <button class="tab-btn" onclick="showTab(5)">⑥ 小測驗</button>
+</div>
+
+<main>
+
+<!-- SECTION 0: 版控是什麼 -->
+<div class="section active" id="s0">
+  <div class="section-header">
+    <span class="num">SECTION 01</span>
+    <h2>版控到底在解決什麼問題？</h2>
+    <p>先建立直覺，再學工具。</p>
+  </div>
+
+  <p class="prose">你有沒有遇過這些情況：</p>
+
+  <div class="concept-grid" style="margin-bottom:1rem">
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">📁</div>
+      <h3>檔名地獄</h3>
+      <p>專案資料夾裡有 final.js、final_v2.js、final_真的最後版.js</p>
+      <div class="detail">版控讓每次「儲存進度」都有時間戳記與說明，你永遠知道回到哪個版本，不需要亂取檔名。</div>
+      <div class="toggle-hint">▸ 點開看解法</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">💥</div>
+      <h3>改爛了回不去</h3>
+      <p>改了一堆東西，搞壞了，但不知道改了哪裡</p>
+      <div class="detail">Git 保存每一個「存檔點」。任何時候都可以查看「我改了什麼」，或直接回到上一個正常版本。</div>
+      <div class="toggle-hint">▸ 點開看解法</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">🤝</div>
+      <h3>多人互蓋</h3>
+      <p>兩個人同時改同一支程式，後存檔的人把前面的蓋掉</p>
+      <div class="detail">Git 的 branch（分支）機制讓每個人在自己的空間工作，完成後再「合併」，衝突也會明確標示出來。</div>
+      <div class="toggle-hint">▸ 點開看解法</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">❓</div>
+      <h3>誰改的？</h3>
+      <p>上線後出問題，不知道是誰、什麼時候加了那行程式碼</p>
+      <div class="detail">每一個 commit 都記錄作者、時間、說明。追問題像偵探一樣，有完整紀錄可查。</div>
+      <div class="toggle-hint">▸ 點開看解法</div>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <strong>一句話理解版控</strong>
+    Git 就是一個超強的「存檔系統」，它記住你每一次存檔的內容、時間、說明，還能讓多人同時在不同分支工作。
+  </div>
+
+  <h3 class="sub">Git vs GitHub — 這兩個不一樣</h3>
+  <table>
+    <tr><th>名詞</th><th>是什麼</th><th>比喻</th></tr>
+    <tr><td><strong>Git</strong></td><td>版本控制工具，裝在你的電腦上</td><td>你自己的存檔系統</td></tr>
+    <tr><td><strong>GitHub / GitLab</strong></td><td>存放程式碼的雲端平台</td><td>共用的 Google Drive</td></tr>
+    <tr><td><strong>Repository (Repo)</strong></td><td>一個專案的所有檔案 + 歷史紀錄</td><td>一個專案資料夾（含所有版本）</td></tr>
+  </table>
+</div>
+
+<!-- SECTION 1: 核心概念 -->
+<div class="section" id="s1">
+  <div class="section-header">
+    <span class="num">SECTION 02</span>
+    <h2>五個核心概念</h2>
+    <p>點開每張卡片看詳細說明與比喻。</p>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">📸</div>
+      <h3>commit</h3>
+      <p>儲存一個「存檔點」，並附上說明</p>
+      <div class="detail">
+        <strong>比喻：</strong>打電動存檔。每次完成一個功能或修完一個 bug，就 commit 一次。<br><br>
+        一個好的 commit 只做「一件事」，說明清楚「做了什麼」而不是「改了哪些檔案」。<br><br>
+        ❌ <code>update files</code><br>
+        ✅ <code>fix: 修正登入頁面密碼驗證邏輯</code>
+      </div>
+      <div class="toggle-hint">▸ 點開看詳情</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">🌿</div>
+      <h3>branch</h3>
+      <p>建立一個平行的工作空間，不影響主線</p>
+      <div class="detail">
+        <strong>比喻：</strong>複印一份文件去修改，主要那份不動。<br><br>
+        通常有一個 <code>main</code> 分支是「正式版」，每個新功能在自己的分支開發完再合併。<br><br>
+        <strong>常見命名：</strong><br>
+        <code>feat/login-page</code> — 新功能<br>
+        <code>fix/api-timeout</code> — 修 bug<br>
+        <code>chore/update-deps</code> — 維護工作
+      </div>
+      <div class="toggle-hint">▸ 點開看詳情</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">🔀</div>
+      <h3>merge / PR</h3>
+      <p>把分支的修改合回主線</p>
+      <div class="detail">
+        <strong>比喻：</strong>校稿完畢，把修改後的那份合回原本文件。<br><br>
+        PR（Pull Request）是正式提交合併申請，讓團隊其他人 <strong>code review</strong>（審查）後才合入。<br><br>
+        這是協作最重要的環節，不要跳過。
+      </div>
+      <div class="toggle-hint">▸ 點開看詳情</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">⬆️</div>
+      <h3>push / pull</h3>
+      <p>本地 ↔ 雲端的同步動作</p>
+      <div class="detail">
+        <strong>push：</strong>把本地的 commit 上傳到 GitHub<br>
+        <strong>pull：</strong>把 GitHub 最新的版本下載到本地<br><br>
+        <strong>好習慣：</strong>每次開始工作前先 <code>pull</code>，確保你在最新版本上工作，避免衝突。
+      </div>
+      <div class="toggle-hint">▸ 點開看詳情</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">💥</div>
+      <h3>conflict</h3>
+      <p>兩個分支都改了同一行，Git 不知道要保留哪個</p>
+      <div class="detail">
+        <strong>別慌！</strong>這是正常現象。Git 會標記出衝突的地方：<br><br>
+        <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD<br>你的版本<br>=======<br>別人的版本<br>&gt;&gt;&gt;&gt;&gt;&gt;&gt; feat/xxx</code><br><br>
+        你需要手動決定「留哪個」，或者兩個都保留、重新整理。用 Claude Code 處理衝突非常方便。
+      </div>
+      <div class="toggle-hint">▸ 點開看詳情</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">📋</div>
+      <h3>staging area</h3>
+      <p>commit 前的「準備區」，可以選擇要提交哪些修改</p>
+      <div class="detail">
+        Git 有三個區域：<br><br>
+        1. <strong>工作目錄</strong> — 你正在改的檔案<br>
+        2. <strong>Staging（暫存區）</strong> — 已選擇要 commit 的修改<br>
+        3. <strong>Repository</strong> — 已存下來的歷史紀錄<br><br>
+        用 <code>git add</code> 把修改放進 staging，再用 <code>git commit</code> 正式存檔。
+      </div>
+      <div class="toggle-hint">▸ 點開看詳情</div>
+    </div>
+  </div>
+
+  <div class="mental-model">
+    <div class="title">// 完整資料流示意</div>
+    <div class="flow">
+      <div class="box">你的電腦<br><small style="opacity:.5">工作目錄</small></div>
+      <div class="arrow">→ git add →</div>
+      <div class="box highlight">Staging Area<br><small style="opacity:.5">準備提交</small></div>
+      <div class="arrow">→ git commit →</div>
+      <div class="box">Local Repo<br><small style="opacity:.5">本地歷史</small></div>
+      <div class="arrow">→ git push →</div>
+      <div class="box blue">GitHub<br><small style="opacity:.5">雲端備份</small></div>
+    </div>
+    <div class="flow" style="margin-top:.5rem">
+      <div class="box blue">GitHub</div>
+      <div class="arrow">→ git pull →</div>
+      <div class="box">Local Repo</div>
+      <div class="arrow">自動同步到</div>
+      <div class="box">工作目錄</div>
+    </div>
+    <div class="note">* Claude Code 會幫你處理大部分的 git add / commit / push 指令，你只需要確認操作正確。</div>
+  </div>
+</div>
+
+<!-- SECTION 2: Claude Code 流程 -->
+<div class="section" id="s2">
+  <div class="section-header">
+    <span class="num">SECTION 03</span>
+    <h2>用 Claude Code 操作版控</h2>
+    <p>不用背指令，用自然語言描述你要做什麼。</p>
+  </div>
+
+  <div class="callout tip">
+    <strong>核心心法</strong>
+    Claude Code 幫你執行 git 指令，但你需要知道「為什麼」，才能確認它做的是你想要的。
+  </div>
+
+  <h3 class="sub">日常開發標準流程</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h4>開始工作前：拉最新版本</h4>
+        <p>告訴 Claude Code：「幫我 pull 最新版本，確認我在 main branch 上」</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h4>建立功能分支</h4>
+        <p>告訴 Claude Code：「建立一個新分支，名稱 feat/[你的功能名稱]，然後切換過去」</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h4>開發、邊做邊存</h4>
+        <p>完成一個小功能或修完一個問題，就 commit 一次。告訴 Claude Code：「把這次的修改 commit，說明是『fix: 修正 XXX 問題』」</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h4>Push 到 GitHub</h4>
+        <p>告訴 Claude Code：「把這個分支 push 到 GitHub」</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h4>開 PR 請人 Review</h4>
+        <p>到 GitHub 網頁開 Pull Request，填寫說明，指定 reviewer。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub">常用自然語言指令範例</h3>
+  <div class="code-block">
+    <span class="cb-label">Claude Code 對話範例</span>
+    <span class="comment"># 查看目前狀態</span><br>
+    <span class="prompt">你：</span><span class="cmd">幫我看一下目前 git 狀態，有哪些檔案被修改了？</span><br><br>
+    <span class="comment"># 存檔</span><br>
+    <span class="prompt">你：</span><span class="cmd">把所有修改 commit，說明是「feat: 新增用戶登入功能」</span><br><br>
+    <span class="comment"># 切換分支</span><br>
+    <span class="prompt">你：</span><span class="cmd">幫我切換到 main 分支，然後 pull 最新版本</span><br><br>
+    <span class="comment"># 查看歷史</span><br>
+    <span class="prompt">你：</span><span class="cmd">顯示最近 5 個 commit 的紀錄</span><br><br>
+    <span class="comment"># 比較差異</span><br>
+    <span class="prompt">你：</span><span class="cmd">比較我現在的修改和上一個 commit 有什麼不同？</span>
+  </div>
+
+  <div class="callout">
+    <strong>⚠️ 注意事項</strong>
+    Claude Code 執行 git 操作前通常會顯示指令讓你確認。<strong>請務必讀一下再按確認</strong>，特別是 push、reset、merge 等動作。
+  </div>
+</div>
+
+<!-- SECTION 3: 協作規範 -->
+<div class="section" id="s3">
+  <div class="section-header">
+    <span class="num">SECTION 04</span>
+    <h2>團隊協作規範</h2>
+    <p>好的習慣讓整個團隊都好過。</p>
+  </div>
+
+  <h3 class="sub">Commit Message 格式</h3>
+  <p class="prose">採用 <strong>Conventional Commits</strong> 格式，讓歷史紀錄一目了然：</p>
+
+  <table>
+    <tr><th>前綴</th><th>用途</th><th>範例</th></tr>
+    <tr><td><code>feat:</code></td><td>新功能</td><td><code>feat: 新增訂單匯出 CSV 功能</code></td></tr>
+    <tr><td><code>fix:</code></td><td>修 Bug</td><td><code>fix: 修正分頁在 Safari 顯示異常</code></td></tr>
+    <tr><td><code>docs:</code></td><td>文件修改</td><td><code>docs: 更新 README 安裝說明</code></td></tr>
+    <tr><td><code>refactor:</code></td><td>重構（不改功能）</td><td><code>refactor: 整理 API 模組架構</code></td></tr>
+    <tr><td><code>chore:</code></td><td>雜事、設定更新</td><td><code>chore: 更新 Node.js 版本</code></td></tr>
+    <tr><td><code>test:</code></td><td>測試相關</td><td><code>test: 新增登入模組單元測試</code></td></tr>
+  </table>
+
+  <h3 class="sub">Branch 命名規則</h3>
+  <div class="code-block">
+    <span class="cmd">feat/[功能名稱]</span>   <span class="comment">— 新功能開發</span><br>
+    <span class="cmd">fix/[問題描述]</span>    <span class="comment">— Bug 修復</span><br>
+    <span class="cmd">hotfix/[問題]</span>     <span class="comment">— 緊急修復（直接影響正式環境）</span><br>
+    <span class="cmd">chore/[說明]</span>      <span class="comment">— 維護、設定、雜務</span>
+  </div>
+
+  <h3 class="sub">不該做的事</h3>
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="icon">🚫</div>
+      <h3 style="color:var(--warn)">直接 push 到 main</h3>
+      <p>main 是正式版。永遠在自己的分支開發，透過 PR 合入。</p>
+    </div>
+    <div class="concept-card">
+      <div class="icon">🚫</div>
+      <h3 style="color:var(--warn)">commit 裡包含密碼</h3>
+      <p>API key、密碼絕對不能放進 git。用 .env 檔案 + .gitignore 處理。</p>
+    </div>
+    <div class="concept-card">
+      <div class="icon">🚫</div>
+      <h3 style="color:var(--warn)">一次 commit 改太多</h3>
+      <p>一個 commit 只做一件事。大範圍修改要拆成多個小 commit。</p>
+    </div>
+    <div class="concept-card">
+      <div class="icon">🚫</div>
+      <h3 style="color:var(--warn)">不寫說明就 commit</h3>
+      <p>「update」、「fix」這種說明沒有意義。寫清楚「修了什麼」、「為什麼改」。</p>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <strong>💡 好習慣養成</strong>
+    每天下班前，確認工作中的修改都已 commit 並 push 到 GitHub。這樣明天電腦壞掉、換人接手，都沒問題。
+  </div>
+</div>
+
+<!-- SECTION 4: 常見狀況 -->
+<div class="section" id="s4">
+  <div class="section-header">
+    <span class="num">SECTION 05</span>
+    <h2>常見狀況 & 解法</h2>
+    <p>遇到問題不要慌，大部分都有解。</p>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">😱</div>
+      <h3>commit 了但寫錯訊息</h3>
+      <p>剛剛 commit，但說明打錯字</p>
+      <div class="detail">
+        告訴 Claude Code：「幫我修改最後一個 commit 的說明，改成『...』」<br><br>
+        它會執行：<code>git commit --amend -m "新說明"</code><br><br>
+        ⚠️ 注意：如果已經 push 了，修改後要用 force push，需要小心。
+      </div>
+      <div class="toggle-hint">▸ 點開看解法</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">😰</div>
+      <h3>不小心 commit 了不該 commit 的東西</h3>
+      <p>把測試用的亂碼或 .env 檔案 commit 進去了</p>
+      <div class="detail">
+        告訴 Claude Code：「幫我把上一個 commit 撤回，保留修改在工作目錄」<br><br>
+        它會執行：<code>git reset HEAD~1</code><br><br>
+        然後加好 .gitignore 再重新 commit 正確的內容。
+      </div>
+      <div class="toggle-hint">▸ 點開看解法</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">😤</div>
+      <h3>merge 衝突不知道怎麼解</h3>
+      <p>Pull 或 merge 的時候出現 CONFLICT</p>
+      <div class="detail">
+        告訴 Claude Code：「我遇到 merge conflict，幫我看一下衝突在哪裡，解釋應該怎麼解」<br><br>
+        Claude Code 會顯示衝突的程式碼，你決定保留哪個版本，它再幫你完成 merge commit。
+      </div>
+      <div class="toggle-hint">▸ 點開看解法</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">😵</div>
+      <h3>改爛了想回到上一個正常版</h3>
+      <p>改了一堆，搞壞了，想全部放棄</p>
+      <div class="detail">
+        告訴 Claude Code：「把工作目錄的所有修改全部還原，回到上一個 commit 的狀態」<br><br>
+        它會執行：<code>git checkout -- .</code> 或 <code>git restore .</code><br><br>
+        ⚠️ 這個操作不可逆，確定要放棄所有未 commit 的修改才執行。
+      </div>
+      <div class="toggle-hint">▸ 點開看解法</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">🤔</div>
+      <h3>不知道現在在哪個分支</h3>
+      <p>忘記自己在哪個分支、有沒有 commit 沒 push</p>
+      <div class="detail">
+        告訴 Claude Code：「告訴我目前的分支狀態，有哪些修改還沒 commit，有哪些 commit 還沒 push」<br><br>
+        它會執行 <code>git status</code> 和 <code>git log --oneline</code> 幫你整理清楚。
+      </div>
+      <div class="toggle-hint">▸ 點開看解法</div>
+    </div>
+    <div class="concept-card" onclick="toggle(this)">
+      <div class="icon">🔍</div>
+      <h3>想找某個功能是誰寫的</h3>
+      <p>這行 code 是哪個 commit 加的？是誰改的？</p>
+      <div class="detail">
+        告訴 Claude Code：「用 git blame 查一下 [檔案名稱]，看每一行是誰在哪個 commit 加的」<br><br>
+        或：「幫我搜尋哪個 commit 裡有關鍵字 'XXX'」
+      </div>
+      <div class="toggle-hint">▸ 點開看解法</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 5: 測驗 -->
+<div class="section" id="s5">
+  <div class="section-header">
+    <span class="num">SECTION 06</span>
+    <h2>觀念小測驗</h2>
+    <p>確認你已經掌握核心概念。共 5 題。</p>
+  </div>
+
+  <div id="quiz-progress" class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+
+  <div class="quiz-card">
+    <div class="q"><span>Q1 / 5</span>開發新功能時，正確的做法是？</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this, false, 'q1')">直接在 main 分支上修改，改完再 commit</button>
+      <button class="quiz-opt" onclick="answer(this, true, 'q1')">建立新的 feature branch，在那邊開發，完成後開 PR 合回 main</button>
+      <button class="quiz-opt" onclick="answer(this, false, 'q1')">複製一份整個 repo 資料夾，在複製的版本上改</button>
+    </div>
+    <div class="quiz-feedback" id="q1-fb"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="q"><span>Q2 / 5</span>以下哪個 commit message 最好？</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this, false, 'q2')">update</button>
+      <button class="quiz-opt" onclick="answer(this, false, 'q2')">修改了 login.js 和 api.js 兩個檔案</button>
+      <button class="quiz-opt" onclick="answer(this, true, 'q2')">fix: 修正登入時 token 過期未自動刷新的問題</button>
+    </div>
+    <div class="quiz-feedback" id="q2-fb"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="q"><span>Q3 / 5</span>git push 是做什麼？</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this, false, 'q3')">從 GitHub 下載最新版本到本地</button>
+      <button class="quiz-opt" onclick="answer(this, true, 'q3')">把本地的 commit 上傳到 GitHub</button>
+      <button class="quiz-opt" onclick="answer(this, false, 'q3')">把修改存成一個新的 commit</button>
+    </div>
+    <div class="quiz-feedback" id="q3-fb"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="q"><span>Q4 / 5</span>遇到 merge conflict 應該怎麼做？</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this, false, 'q4')">非常緊張，立刻刪掉整個 repo 重來</button>
+      <button class="quiz-opt" onclick="answer(this, false, 'q4')">直接 push --force 蓋過去</button>
+      <button class="quiz-opt" onclick="answer(this, true, 'q4')">查看衝突的地方，和對方討論後決定保留哪個版本，再完成 merge</button>
+    </div>
+    <div class="quiz-feedback" id="q4-fb"></div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="q"><span>Q5 / 5</span>以下哪個不該放進 git commit？</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this, false, 'q5')">程式碼修改</button>
+      <button class="quiz-opt" onclick="answer(this, true, 'q5')">API 金鑰、資料庫密碼等機密資訊</button>
+      <button class="quiz-opt" onclick="answer(this, false, 'q5')">README 文件更新</button>
+    </div>
+    <div class="quiz-feedback" id="q5-fb"></div>
+  </div>
+
+  <div id="quiz-result" style="display:none; margin-top:1rem;">
+    <div class="callout tip">
+      <strong>🎉 完成測驗</strong>
+      <span id="result-text"></span>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+  const tabs = document.querySelectorAll('.tab-btn');
+  const sections = document.querySelectorAll('.section');
+
+  function showTab(i) {
+    tabs.forEach((t, idx) => t.classList.toggle('active', idx === i));
+    sections.forEach((s, idx) => s.classList.toggle('active', idx === i));
+  }
+
+  function toggle(card) {
+    card.classList.toggle('open');
+    const hint = card.querySelector('.toggle-hint');
+    if (hint) hint.textContent = card.classList.contains('open') ? '▾ 收起' : '▸ 點開看詳情';
+  }
+
+  const answers = {
+    q1: { correct: false, msg: '' },
+    q2: { correct: false, msg: '' },
+    q3: { correct: false, msg: '' },
+    q4: { correct: false, msg: '' },
+    q5: { correct: false, msg: '' },
+  };
+
+  const feedback = {
+    q1: { ok: '正確！永遠在 feature branch 開發，保護 main 的穩定性。', no: '不對喔。直接改 main 很危險，複製資料夾也不是版控的做法。' },
+    q2: { ok: '正確！好的 commit message 說明「做了什麼」以及「修了哪個問題」。', no: '不夠好。「update」完全沒有資訊；列出檔案名稱也沒說明「為什麼改」。' },
+    q3: { ok: '正確！push 是把本地的 commit 上傳。反向是 pull（下載）。', no: '不對喔。push 方向是「本地 → 雲端」。' },
+    q4: { ok: '正確！conflict 不可怕，需要溝通後手動決定保留哪個版本。', no: '不對。force push 會蓋掉別人的工作，絕對不能這樣做。刪 repo 更不用說。' },
+    q5: { ok: '正確！密碼、API key 絕對不能進 git，要用 .env + .gitignore 處理。', no: '那個是可以放進 git 的內容。機密資訊（密碼、API key）才是不該放的。' },
+  };
+
+  let doneCount = 0;
+
+  function answer(btn, isCorrect, qid) {
+    if (answers[qid].correct !== undefined && answers[qid].answered) return;
+    answers[qid].answered = true;
+    if (isCorrect) answers[qid].correct = true;
+
+    const opts = btn.closest('.quiz-options').querySelectorAll('.quiz-opt');
+    opts.forEach(o => o.disabled = true);
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    const fb = document.getElementById(qid + '-fb');
+    fb.textContent = isCorrect ? '✓ ' + feedback[qid].ok : '✗ ' + feedback[qid].no;
+    fb.className = 'quiz-feedback show ' + (isCorrect ? 'ok' : 'no');
+
+    doneCount++;
+    document.querySelector('.progress-fill').style.width = (doneCount / 5 * 100) + '%';
+
+    if (doneCount === 5) {
+      const score = Object.values(answers).filter(a => a.correct).length;
+      const result = document.getElementById('quiz-result');
+      const text = document.getElementById('result-text');
+      text.textContent = `答對 ${score} / 5 題。` + (score >= 4 ? '很好，概念已掌握！可以開始用 Claude Code 操作了。' : '建議再複習一下第 2、3 節的內容。');
+      result.style.display = 'block';
+    }
+  }
+</script>
+</body>
+</html>

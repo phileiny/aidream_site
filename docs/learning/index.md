@@ -16,6 +16,10 @@
 
 從零開始實作語言模型，涵蓋 Tokenizer、Transformer、分散式訓練到 Alignment。這是一個預計 17 週的深度學習旅程。
 
+### [Git × Claude Code — 版控入門指南](/learning/git-claude-code-guide.html)
+
+Git 版控搭配 Claude Code 的入門教學，從基礎概念到實戰操作一次掌握。
+
 ---
 
 *持續更新中...*

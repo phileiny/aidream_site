@@ -91,6 +91,8 @@ export default defineConfig({
           text: 'Robot Articles',
           items: [
             { text: 'Index', link: '/robot/' },
+            { text: '中國具身智能的兩條路線:MotuBrain vs 自變量', link: '/robot/中國具身智能兩條路線' },
+            { text: '機器人沒有 MMLU:當 Benchmark 還沒有共識的時候，我們該怎麼看「世界第一」？', link: '/robot/機器人沒有MMLU' },
             { text: '台灣 AI 機器人產業全景:從政策到落地的關鍵布局', link: '/robot/taiwan-ai-robotics-blog' },
             { text: 'VLA 技術深度解析:從原理到 Mantis 實戰應用', link: '/robot/VLA技術深度解析_從原理到Mantis實戰應用' }
           ]

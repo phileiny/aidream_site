@@ -139,6 +139,4 @@ Migato 把這兩件事，變成了每天早上一秒鐘的動作。
 
 ---
 
-*Migato 米果，2026/4/19 在嘖嘖上線。*  
-*早鳥價 NT$3,490，含硬體 + 一年 AI 雲端。*  
 *[aidream.com.tw](https://aidream.com.tw)*

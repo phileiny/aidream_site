@@ -104,6 +104,7 @@ export default defineConfig({
           items: [
             { text: 'Index', link: '/project/' },
             { text: '為什麼每天摸一下貓的頭，是一件宇宙學意義的事', link: '/project/migato-cosmic-ritual' },
+            { text: '為什麼我花兩美金租 GPU，而不是花十二萬買一張', link: '/project/minimax-h3-third-path' },
             { text: '我的第一個 Upwork Proposal', link: '/project/my_first_upwork_post' },
             { text: '你不是在觀看這個世界，你是在渲染它', link: '/project/participatory-universe-v2' },
             { text: '從混沌到秩序：咩猛 Memo 開發實錄', link: '/project/memobot-development-journey' },

@@ -14,6 +14,7 @@ Welcome to the Project articles section. Here you will find posts about our Proj
 ## Recent Posts
 
 - [為什麼每天摸一下貓的頭，是一件宇宙學意義的事](./migato-cosmic-ritual)
+- [為什麼我花兩美金租 GPU，而不是花十二萬買一張](./minimax-h3-third-path)
 - [我的第一個 Upwork Proposal](./my_first_upwork_post)
 - [你不是在觀看這個世界，你是在渲染它](./participatory-universe-v2)
 - [從混沌到秩序：咩猛 Memo 開發實錄 — 一個 AI 助理專案的重生之路](./memobot-development-journey)

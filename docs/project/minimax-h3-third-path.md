@@ -53,7 +53,7 @@
 
 還有一個選項，很少人把它當成一條「路」來講。
 
-在 RunPod 上租一張 5090，一小時 0.99 美金。掛一個社群做的 ComfyUI 模板，模型自動下載，瀏覽器打開就是完整的本地介面。
+在 [RunPod](https://runpod.io?ref=s3bs0r0v) 上租一張 5090，一小時 0.99 美金。掛一個社群做的 ComfyUI 模板，模型自動下載，瀏覽器打開就是完整的本地介面。
 
 **它不是雲端服務。它是一台你臨時擁有的地端機器。**
 
@@ -186,6 +186,10 @@ grep "Prompt executed" comfyui.log
 
 而現在，開一台機器的門檻是兩美金。
 
+想自己試一個下午：[RunPod](https://runpod.io?ref=s3bs0r0v)。
+
 ---
+
+*本文的 RunPod 連結為推薦連結，透過它註冊我會獲得少量回饋，不影響你的價格。*
 
 *[aidream.com.tw](https://aidream.com.tw)*

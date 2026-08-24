@@ -104,6 +104,7 @@ export default defineConfig({
           items: [
             { text: 'Index', link: '/project/' },
             { text: '為什麼每天摸一下貓的頭，是一件宇宙學意義的事', link: '/project/migato-cosmic-ritual' },
+            { text: '那張 AI 影片比價表，少了一列', link: '/project/ai-video-cost-selfhost' },
             { text: '我把上一篇刪掉的那一步，加了回來', link: '/project/storyboard-before-render' },
             { text: '我刪掉了 AI 影片製作工作流裡最貴的那一步', link: '/project/minimax-h3-ref2va' },
             { text: '為什麼我花兩美金租 GPU，而不是花十二萬買一張', link: '/project/minimax-h3-third-path' },

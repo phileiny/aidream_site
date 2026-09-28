@@ -13,8 +13,10 @@ Welcome to the Project articles section. Here you will find posts about our Proj
 
 ## Recent Posts
 
+- [Jackie 的身高，我改了兩次](./h3-reference-boards)
+- [我說「要有喜感」，模型要的是兩個時間戳](./h3-director-vs-model)
+- [快了兩倍多，然後我發現自己量錯了四次](./minimax-h3-8step-acceleration)
 - [為什麼每天摸一下貓的頭，是一件宇宙學意義的事](./migato-cosmic-ritual)
-- [快了 2.6 倍，然後我發現自己量錯了兩次](./minimax-h3-8step-acceleration)
 - [那張 AI 影片比價表，少了一列](./ai-video-cost-selfhost)
 - [我把上一篇刪掉的那一步，加了回來](./storyboard-before-render)
 - [我刪掉了 AI 影片製作工作流裡最貴的那一步](./minimax-h3-ref2va)

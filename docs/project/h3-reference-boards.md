@@ -1,8 +1,7 @@
 <!-- 🚧 草稿，2026-09-28。尚未登錄側邊欄。發布前：
      ① 《矽谷之戀》是 Dave 的小說改編 —— 公開粗剪與角色畫面前，先確認 Dave 同意
      ② 兩支粗剪是不調色、不上字幕的工作版，要不要換成剪短的對照片段，發布前決定
-     ③ 9/18〈我說「要有喜感」…〉(h3-director-vs-model) 發布後，頁尾加回連到它的一行（它未 commit 時連過去會讓建置失敗）
-     ④ 價格：Nano Banana Pro 取自 Google AI Studio 標價；GPT Image 的 token 價是第三方整理，發布前再核一次 -->
+     ③ 價格：Nano Banana Pro 取自 Google AI Studio 標價；GPT Image 的 token 價是第三方整理，發布前再核一次 -->
 
 # Jackie 的身高，我改了兩次
 
@@ -237,7 +236,8 @@ Nano Banana Pro（遠景）、gpt-image-2.5-flare（補光）、Gemini flash（�
 *每天的進度、失敗與抽格我都貼在脆上：[瑞導](https://www.threads.com/share/GfotsoXNd/)
 —— 那邊是當天的原始紀錄，這裡是想清楚之後的版本。*
 
-*分鏡先於算圖的理由見[〈我把上一篇刪掉的那一步，加了回來〉](./storyboard-before-render)。*
+*上一篇寫的是提示詞那一層：[〈我說「要有喜感」，模型要的是兩個時間戳〉](./h3-director-vs-model)。
+分鏡先於算圖的理由見[〈我把上一篇刪掉的那一步，加了回來〉](./storyboard-before-render)。*
 
 *本文的 RunPod 連結為推薦連結，透過它註冊我會獲得少量回饋，不影響你的價格。*
 
